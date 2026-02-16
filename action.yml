@@ -1,0 +1,42 @@
+name: 'Run Agent'
+description: 'Check out agent harness and run an agent role or orchestration script'
+
+inputs:
+  entry-point:
+    description: 'Script to run relative to harness root (e.g., agents/engineer.sh, scripts/run-sre.sh)'
+    required: true
+  harness-ref:
+    description: 'Git ref for harness repo checkout'
+    default: 'main'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout harness
+      uses: actions/checkout@v4
+      with:
+        repository: YourMoveLabs/agent-harness
+        ref: ${{ inputs.harness-ref }}
+        path: .harness
+
+    - name: Set up environment
+      shell: bash
+      run: |
+        echo "HARNESS_ROOT=${{ github.workspace }}/.harness" >> "$GITHUB_ENV"
+        echo "PROJECT_ROOT=${{ github.workspace }}" >> "$GITHUB_ENV"
+
+        # Load .env: prefer project root, fall back to runner config
+        if [ -f "${{ github.workspace }}/.env" ]; then
+          echo "Using .env from project root"
+        elif [ -f "$HOME/.config/agent-harness/.env" ]; then
+          cp "$HOME/.config/agent-harness/.env" "${{ github.workspace }}/.env"
+          echo "Loaded .env from runner config"
+        else
+          echo "WARNING: No .env found"
+        fi
+
+    - name: Run agent
+      shell: bash
+      run: |
+        chmod +x ".harness/${{ inputs.entry-point }}"
+        ".harness/${{ inputs.entry-point }}"
