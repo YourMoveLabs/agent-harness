@@ -38,8 +38,6 @@ Project workflows use the composite action to pull in the harness:
 ```yaml
 steps:
   - uses: actions/checkout@v4
-    with:
-      ref: stable
 
   - uses: YourMoveLabs/agent-harness@main
     with:

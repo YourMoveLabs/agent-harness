@@ -144,3 +144,57 @@ and thin workflow stubs. One harness, many projects.
 Human removes their own code access to project repos. Only bot accounts can
 push. Human interacts exclusively through the harness repo and GitHub's
 project management UI. The git history is the proof.
+
+## Operational Philosophy
+
+### Self-Sustaining, Self-Healing
+
+The system must be autonomous end-to-end. Agents push to `main`, deploy
+happens automatically, and if something breaks, the system self-heals. There
+are no human gates in the agent loop.
+
+**The cycle:**
+```
+Agent pushes code → CI passes → Deploy to production → Health check
+  → Healthy: done
+  → Unhealthy: auto-rollback to previous revision → SRE agent investigates
+```
+
+No human approves deployments. No human promotes branches. The agents
+operate on `main` — the same branch they push to and deploy from.
+
+### Failure Is Expected
+
+Agents will ship bugs. Deploys will break. The system is designed for this:
+
+1. **Automated rollback**: Deploy health checks fail → traffic shifts to the
+   previous working revision automatically
+2. **SRE on call**: Azure alerts fire → alert bridge dispatches the SRE
+   agent → SRE runs playbooks or escalates
+3. **Self-correction**: Reviewer catches issues → requests changes →
+   engineer fixes → cycle continues
+
+The human doesn't fix production. The human builds the infrastructure that
+lets agents fix production.
+
+### The Harness IS the Safety Net
+
+Traditional safety: human reviews code before it reaches production.
+Harness safety: infrastructure catches failures and recovers automatically.
+
+**What the human builds:**
+- Rollback mechanisms (Container App revision rollback)
+- Health checks and monitoring (Azure alerts → SRE dispatch)
+- Remediation playbooks (restart, rollback, retrigger)
+- Loop protection (review round limits, chain depth guards, concurrency)
+- Quality gates (CI, reviewer agent, convention enforcement)
+
+**What the human does NOT do:**
+- Approve deployments
+- Promote branches
+- Manually intervene in the agent cycle
+
+The human's job is to make the harness robust enough that agents can fail
+safely and recover without help. When they can't recover, the failure
+surfaces as a `harness/request` issue — the human improves the
+infrastructure, and the system gets more resilient.
