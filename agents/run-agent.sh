@@ -120,6 +120,11 @@ case "$ROLE" in
         # No Write/Edit — SRE doesn't modify code. It reads, monitors, and creates issues.
         ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(python3:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read"
         ;;
+    writer)
+        # Content generation: calls blog API, manages blob storage, tracks via gh
+        # No Write/Edit — writer doesn't modify app code
+        ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(scripts/*),Read,Glob,Grep"
+        ;;
     po|reviewer|triage|ux)
         # Read-only + GitHub CLI — no file editing
         ALLOWED_TOOLS="${COMMON_TOOLS},Bash(scripts/*)"
