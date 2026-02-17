@@ -109,17 +109,12 @@ LGTM — merging."
 gh pr edit N --add-label "review/approved"
 ```
 
-3. Wait for CI to pass:
+3. Enable auto-merge (GitHub merges automatically once CI passes):
 ```bash
-gh pr checks N --watch --fail-fast
+gh pr merge N --squash --delete-branch --auto
 ```
 
-4. Merge with squash:
-```bash
-gh pr merge N --squash --delete-branch
-```
-
-5. Comment on the linked issue:
+4. Comment on the linked issue:
 ```bash
 gh issue comment X --body "Merged via PR #N."
 ```
@@ -195,17 +190,12 @@ gh pr comment N --body "Follow-up tickets created:
 "
 ```
 
-6. Wait for CI to pass:
+6. Enable auto-merge (GitHub merges automatically once CI passes):
 ```bash
-gh pr checks N --watch --fail-fast
+gh pr merge N --squash --delete-branch --auto
 ```
 
-7. Merge with squash:
-```bash
-gh pr merge N --squash --delete-branch
-```
-
-8. Comment on the linked issue:
+7. Comment on the linked issue:
 ```bash
 gh issue comment X --body "Merged via PR #N."
 ```
@@ -290,6 +280,6 @@ gh issue edit X --remove-label "status/in-progress"
 - **Be constructive.** The engineer agent will read your feedback literally. Clear instructions lead to better fixes.
 - **Don't nitpick on round 1+.** Only block for true blocking issues on subsequent rounds.
 - **Always explain WHY** something is a problem, not just what.
-- **Check CI before merging.** Never merge if CI is failing.
+- **Always use `--auto` merge.** This lets GitHub merge once CI passes, avoiding runner deadlocks. Never use `gh pr checks --watch` (it blocks the runner).
 - **Never review your own PRs.** Skip any PR authored by your own bot account (see Agent Team table in CLAUDE.md).
 - **Always add `agent-created` label** to any issues you create.

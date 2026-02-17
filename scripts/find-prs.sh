@@ -20,7 +20,7 @@ Find GitHub pull requests with filtering and computed metadata.
 
 Options:
   --reviewable          Not draft, not approved, not authored by current user
-  --needs-fix           Authored by current user with CHANGES_REQUESTED
+  --needs-fix           Authored by current user with CHANGES_REQUESTED or ci/failed label
   --state STATE         open (default), merged, closed, all
   --author AUTHOR       Filter by author login
   --limit N             Max results (default: 10)
@@ -59,7 +59,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # --- Fetch PRs ---
-GH_ARGS=(pr list --state "$STATE" --json "number,title,author,isDraft,reviewDecision,headRefName,body,reviews" --limit 100)
+GH_ARGS=(pr list --state "$STATE" --json "number,title,author,isDraft,reviewDecision,headRefName,body,reviews,labels" --limit 100)
 
 if [[ -n "$AUTHOR" ]]; then
     GH_ARGS+=(--author "$AUTHOR")
@@ -77,6 +77,7 @@ ENRICHED=$(echo "$RAW" | jq '[.[] | {
     isDraft: .isDraft,
     reviewDecision: .reviewDecision,
     headRefName: .headRefName,
+    labels: [.labels[].name],
     linkedIssue: (
         try (.body | capture("(?:Closes|Fixes|Resolves) #(?<num>[0-9]+)"; "i") | .num | tonumber)
         catch null
@@ -91,9 +92,9 @@ ENRICHED=$(echo "$RAW" | jq '[.[] | {
 JQ_FILTER='.'
 
 if [[ "$NEEDS_FIX" == "true" ]]; then
-    # PRs authored by current user with changes requested
+    # PRs that need engineer attention: reviewer requested changes OR CI failed
     # GH_TOKEN sets the auth context — @me PRs have reviewDecision == CHANGES_REQUESTED
-    JQ_FILTER+=' | [.[] | select(.reviewDecision == "CHANGES_REQUESTED")]'
+    JQ_FILTER+=' | [.[] | select(.reviewDecision == "CHANGES_REQUESTED" or (.labels | any(. == "ci/failed")))]'
 fi
 
 if [[ "$REVIEWABLE" == "true" ]]; then
