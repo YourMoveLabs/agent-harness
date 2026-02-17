@@ -63,12 +63,13 @@ Categorize each issue you find:
 - Changes break existing functionality
 - PR doesn't address the issue's acceptance criteria
 
-**NON-BLOCKING issues** (mention in comments but don't block merge):
+**NON-BLOCKING issues** (track via follow-up tickets, don't block merge):
 - Style or naming suggestions
 - Missing test coverage (unless the logic is critical)
 - Documentation gaps
 - Minor improvements or alternative approaches
 - Code that works but could be cleaner
+- Missing conventions or standards that should be defined
 
 ## Step 4: Check the review round
 
@@ -81,17 +82,17 @@ gh pr view N --json reviews --jq '[.reviews[] | select(.author.login=="YOUR_BOT_
 This is the **review round number**:
 - **Round 0**: First review — apply normal standards
 - **Round 1**: Second review — be lenient, only block for true blocking issues
-- **Round 2+**: Too many rounds — you MUST either approve or close (no more change requests). **Do NOT request changes again.**
+- **Round 2**: Third review — be very lenient, only block for security/crash blockers
+- **Round 3+**: Too many rounds — you MUST either approve or close (no more change requests). **Do NOT request changes again.**
 
 ## Step 5: Take action
 
-Based on your evaluation and the round number, take ONE of these three paths:
+Based on your evaluation and the round number, choose a path:
 
-### Path A: Approve and Merge
+### Path A: Approve and Merge (clean)
 
 Use this when:
-- No blocking issues found, OR
-- Round >= 1 and only non-blocking issues remain
+- No blocking issues and no meaningful non-blocking issues
 
 Steps:
 1. Approve the PR with a summary:
@@ -99,9 +100,6 @@ Steps:
 gh pr review N --approve --body "## Review: Approved
 
 **Summary**: Brief description of what this PR does well.
-
-**Non-blocking suggestions** (for future work):
-- Any style/improvement suggestions
 
 LGTM — merging."
 ```
@@ -111,7 +109,7 @@ LGTM — merging."
 gh pr edit N --add-label "review/approved"
 ```
 
-3. Wait for CI to pass (check up to 3 times with 30-second waits):
+3. Wait for CI to pass:
 ```bash
 gh pr checks N --watch --fail-fast
 ```
@@ -126,35 +124,107 @@ gh pr merge N --squash --delete-branch
 gh issue comment X --body "Merged via PR #N."
 ```
 
-6. If you identified non-blocking suggestions worth pursuing (not trivial style nits), create a follow-up issue for each meaningful one:
+### Path B: Approve with Follow-up Tickets
+
+Use this when:
+- No blocking issues, BUT you identified non-blocking issues worth tracking
+- Round >= 1 and only non-blocking issues remain
+
+This is the primary way to move PRs forward while capturing improvement work. Merge the code now, file tickets for later.
+
+**Categorize each non-blocking issue** before creating tickets:
+- **Engineer work** (`source/reviewer-backlog`): Code improvements the engineer should do — refactors, missing tests, performance tweaks, naming fixes, dead code removal
+- **Standards gap** (`source/tech-lead`): The issue stems from a missing convention or unclear standard — the tech lead should set the rule, not the engineer. Examples: inconsistent error handling patterns, no established naming convention for a category of things, missing linting rule
+
+Steps:
+1. Approve the PR with a summary that references the follow-up tickets:
+```bash
+gh pr review N --approve --body "## Review: Approved with follow-ups
+
+**Summary**: Brief description of what this PR does well.
+
+**Non-blocking issues** (tracked as follow-up tickets):
+- Issue 1 description
+- Issue 2 description
+
+Merging now — creating follow-up tickets below."
+```
+
+2. Add the approved label:
+```bash
+gh pr edit N --add-label "review/approved"
+```
+
+3. Create follow-up tickets for engineer work (one per distinct issue):
 ```bash
 gh issue create --title "Improvement: BRIEF_DESCRIPTION" \
-  --label "agent-created,priority/medium,type/chore" \
+  --label "agent-created,source/reviewer-backlog,priority/medium,type/chore" \
   --body "## Context
 Identified during review of PR #N.
 
 ## Suggestion
-DETAILED_DESCRIPTION
+DETAILED_DESCRIPTION — what to change and where.
 
 ## Why
-RATIONALE"
+RATIONALE — why this matters (readability, performance, correctness risk, etc.)"
 ```
 
-### Path B: Request Changes
+4. Create follow-up tickets for standards gaps (one per distinct gap):
+```bash
+gh issue create --title "Convention: BRIEF_DESCRIPTION" \
+  --label "agent-created,source/tech-lead,priority/medium,type/refactor" \
+  --body "## Context
+Identified during review of PR #N.
+
+## Standards Gap
+DESCRIPTION — what convention or standard is missing.
+
+## Evidence
+- Specific code in PR #N that would benefit from a clear standard
+- Other files or PRs where the same ambiguity exists
+
+## Suggested Standard
+What rule or convention should the tech lead define."
+```
+
+5. Comment on the PR with links to the created tickets:
+```bash
+gh pr comment N --body "Follow-up tickets created:
+- #T1 (engineer backlog)
+- #T2 (tech lead standard)
+"
+```
+
+6. Wait for CI to pass:
+```bash
+gh pr checks N --watch --fail-fast
+```
+
+7. Merge with squash:
+```bash
+gh pr merge N --squash --delete-branch
+```
+
+8. Comment on the linked issue:
+```bash
+gh issue comment X --body "Merged via PR #N."
+```
+
+### Path C: Request Changes
 
 Use this when:
-- Blocking issues found AND round < 2
+- Blocking issues found AND round < 3
 
 Steps:
 1. Request changes with specific, actionable feedback:
 ```bash
-gh pr review N --request-changes --body "## Review: Changes Requested
+gh pr review N --request-changes --body "## Review: Changes Requested (Round ROUND_NUMBER/3)
 
 **Blocking issues** (must fix before merge):
 1. Issue description — what's wrong and how to fix it
 2. ...
 
-**Suggestions** (non-blocking):
+**Suggestions** (non-blocking, will not block next round):
 - Optional improvement ideas
 
 Please address the blocking issues and push new commits."
@@ -165,12 +235,12 @@ Please address the blocking issues and push new commits."
 gh pr edit N --add-label "review/changes-requested"
 ```
 
-### Path C: Close and Backlog
+### Path D: Close and Backlog
 
 Use this when:
 - The approach is fundamentally wrong (a rewrite would be needed)
 - The PR doesn't address the issue at all
-- After round 2 with still-blocking issues that can't be trivially fixed
+- After round 3 with still-blocking issues that can't be trivially fixed
 
 Steps:
 1. Close the PR with an explanation:
@@ -213,10 +283,13 @@ gh issue edit X --remove-label "status/in-progress"
 ## Rules
 
 - **Review ONE PR per run.** Pick one, review it fully, take action.
-- **Maximum 2 rounds of change requests.** After that, either approve (Path A) or close (Path C). Never request changes a third time.
+- **Maximum 3 rounds of change requests.** After that, either approve (Path A/B) or close (Path D). Never request changes a fourth time.
+- **Prefer Path B over Path C on later rounds.** If it's round 1+ and the remaining issues are non-blocking, approve with follow-up tickets instead of requesting another round of changes.
+- **Distinguish engineer work from standards gaps.** When filing follow-up tickets, ask: "Is this something the engineer should fix, or is there a missing convention the tech lead should define?" Use `source/reviewer-backlog` for the former, `source/tech-lead` for the latter.
 - **Be specific and actionable.** Don't say "this could be better" — say exactly what to change and how.
 - **Be constructive.** The engineer agent will read your feedback literally. Clear instructions lead to better fixes.
 - **Don't nitpick on round 1+.** Only block for true blocking issues on subsequent rounds.
 - **Always explain WHY** something is a problem, not just what.
 - **Check CI before merging.** Never merge if CI is failing.
 - **Never review your own PRs.** Skip any PR authored by your own bot account (see Agent Team table in CLAUDE.md).
+- **Always add `agent-created` label** to any issues you create.
