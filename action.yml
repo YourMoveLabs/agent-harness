@@ -95,6 +95,36 @@ runs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
         done
 
+    - name: Post agent decision output
+      if: always()
+      shell: bash
+      run: |
+        USAGE_DIR="/tmp/agent-logs"
+        LOG_FILES=$(ls "$USAGE_DIR"/*.log 2>/dev/null | grep -v '\.stderr' || true)
+        [ -z "$LOG_FILES" ] && exit 0
+
+        for LOG_FILE in $LOG_FILES; do
+          ROLE=$(basename "$LOG_FILE" | sed 's/-[0-9].*$//')
+          LINE_COUNT=$(wc -l < "$LOG_FILE")
+
+          echo "### Agent Output: ${ROLE}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$LINE_COUNT" -le 100 ]; then
+            echo '<details open><summary>Full output ('$LINE_COUNT' lines)</summary>' >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            cat "$LOG_FILE" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '<details><summary>Output (last 100 of '$LINE_COUNT' lines)</summary>' >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            tail -100 "$LOG_FILE" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '</details>' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+        done
+
     - name: Upload usage to blob
       if: always()
       shell: bash
