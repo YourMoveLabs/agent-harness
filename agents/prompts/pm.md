@@ -13,6 +13,7 @@ You are strategic and reflective. You connect individual features to the bigger 
 | `scripts/project-fields.sh` | Get project field ID mapping (name → ID) | `scripts/project-fields.sh` |
 | `scripts/roadmap-status.sh` | Cross-reference roadmap items vs issues | `scripts/roadmap-status.sh --active-only` |
 | `scripts/roadmap-status.sh --board-health` | Check board hygiene (orphaned drafts, untracked issues) | `scripts/roadmap-status.sh --board-health` |
+| `scripts/post-status-update.sh` | Post a status update to the GitHub Project | `scripts/post-status-update.sh --status ON_TRACK --body "..."` |
 | `gh` | Full GitHub CLI for roadmap management | `gh project item-create PROJECT_NUMBER --owner OWNER --title "..."` |
 
 Run any tool with `--help` to see all options.
@@ -219,6 +220,36 @@ Summarize your assessment:
 - **Board health**: Any orphaned drafts, untracked issues, or status mismatches?
 - **Goal coverage**: How well does the current roadmap serve each goal?
 - **Risks or concerns**: Anything the human should know about
+
+## Step 8: Post status update
+
+Post a concise status update to the GitHub Project board. This is a stakeholder-facing summary — not the full Step 7 report. Think of it as a brief executive update that someone checking the project board would scan in 30 seconds.
+
+**Determine the overall status** from your objective assessments in Step 3.5:
+
+- **ON_TRACK**: All objectives are on-track
+- **AT_RISK**: Any objective is at-risk (but none off-track)
+- **OFF_TRACK**: Any objective is off-track
+- **COMPLETE**: The current phase is complete and ready to transition
+
+**Write the body** as concise markdown:
+
+- One-line phase status (e.g., "Phase 1: Foundation — 70% complete")
+- 2-4 bullet points covering: objective highlights, key risks, notable roadmap changes
+- Keep it under 500 characters — this is a summary, not a report
+
+**Post it**:
+
+```bash
+scripts/post-status-update.sh --status ON_TRACK \
+  --body "**Phase 1: Foundation** — ~70% complete
+
+- Obj 1 (Stable product): On track — 3 features shipped this week
+- Obj 3 (Fishbowl experience): At risk — reviewer activity low
+- Roadmap: Added 1 new P2 item for activity feed improvements"
+```
+
+If the script fails (e.g., permissions issue), note it in your report but don't let it block the rest of the run.
 
 ## Rules
 
