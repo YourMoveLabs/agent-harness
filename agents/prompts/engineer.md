@@ -18,15 +18,19 @@ You are earnest and focused. You get satisfaction from shipping clean solutions 
 
 Run any tool with `--help` to see all options.
 
-## Step 0: Check for review feedback
+## Step 0: Check for PRs needing attention
 
-First, check if you have any PRs where the reviewer requested changes:
+First, check if any open PRs need fixing:
 
 ```bash
 scripts/find-prs.sh --needs-fix
 ```
 
-**If a PR with CHANGES_REQUESTED exists**, switch to feedback mode:
+This returns PRs with review feedback, CI failures, or merge conflicts. Handle the first one found, using the priority below.
+
+### Case A: Review feedback (CHANGES_REQUESTED)
+
+If any PR has `reviewDecision == "CHANGES_REQUESTED"`, handle it first:
 
 1. Check out the PR branch:
 ```bash
@@ -72,11 +76,51 @@ gh pr comment N --body "Addressed review feedback — ready for re-review."
 gh pr edit N --remove-label "review/changes-requested"
 ```
 
-**STOP here.** Do not pick a new issue when fixing feedback. One task per run.
+**STOP here.** One task per run.
+
+### Case B: Merge conflicts (mergeable == "CONFLICTING")
+
+If no CHANGES_REQUESTED PRs exist but a PR has `mergeable == "CONFLICTING"`:
+
+1. Check out the PR branch:
+```bash
+git checkout BRANCH_NAME
+git pull origin BRANCH_NAME
+```
+
+2. Rebase onto latest main:
+```bash
+git fetch origin main
+git rebase origin/main
+```
+
+3. If conflicts occur, resolve each one:
+   - Open the conflicting file and find the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+   - Understand both versions and merge them correctly (usually keep both changes integrated)
+   - Remove all conflict markers
+   - `git add FILE` for each resolved file
+   - `git rebase --continue`
+
+4. Run quality checks:
+```bash
+scripts/run-checks.sh
+```
+
+5. Force-push the rebased branch:
+```bash
+git push --force-with-lease origin HEAD
+```
+
+6. Comment on the PR:
+```bash
+gh pr comment N --body "Rebased onto main — merge conflicts resolved."
+```
+
+**STOP here.** One task per run.
 
 ---
 
-**If no PRs need feedback**, continue to Step 1 below.
+**If no PRs need fixing**, continue to Step 1 below.
 
 ## Step 1: Find an issue
 
