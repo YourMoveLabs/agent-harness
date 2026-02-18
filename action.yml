@@ -8,6 +8,12 @@ inputs:
   harness-ref:
     description: 'Git ref for harness repo checkout'
     default: 'main'
+  azure-storage-account:
+    description: 'Azure storage account for usage data'
+    default: 'agentfishbowlstorage'
+  azure-usage-container:
+    description: 'Blob container for usage data'
+    default: 'agent-usage'
 
 runs:
   using: 'composite'
@@ -45,8 +51,16 @@ runs:
       if: always()
       shell: bash
       run: |
-        USAGE_FILE=$(ls -t /tmp/agent-logs/*-usage.json 2>/dev/null | head -1)
-        if [ -f "$USAGE_FILE" ]; then
+        USAGE_DIR="/tmp/agent-logs"
+        USAGE_FILES=$(ls "$USAGE_DIR"/*-usage.json 2>/dev/null || true)
+
+        if [ -z "$USAGE_FILES" ]; then
+          echo "No usage data found (agent may not have produced JSON output)" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+        fi
+
+        # Post summary for each agent (handles multi-agent workflows)
+        for USAGE_FILE in $USAGE_FILES; do
           COST=$(jq -r '.total_cost_usd // "?"' "$USAGE_FILE")
           TURNS=$(jq -r '.num_turns // "?"' "$USAGE_FILE")
           DURATION=$(jq -r '(.duration_api_ms // 0) / 1000 | floor' "$USAGE_FILE")
@@ -69,6 +83,40 @@ runs:
             echo "|-------|-------|--------|------|" >> "$GITHUB_STEP_SUMMARY"
             jq -r '.model_usage | to_entries[] | "| \(.key) | \(.value.inputTokens) | \(.value.outputTokens) | $\(.value.costUSD) |"' "$USAGE_FILE" >> "$GITHUB_STEP_SUMMARY"
           fi
-        else
-          echo "No usage data found (agent may not have produced JSON output)" >> "$GITHUB_STEP_SUMMARY"
-        fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+        done
+
+    - name: Upload usage to blob
+      if: always()
+      shell: bash
+      run: |
+        USAGE_DIR="/tmp/agent-logs"
+        USAGE_FILES=$(ls "$USAGE_DIR"/*-usage.json 2>/dev/null || true)
+        [ -z "$USAGE_FILES" ] && exit 0
+
+        # Merge all usage files into a single envelope
+        MERGED="$USAGE_DIR/usage-merged.json"
+        jq -s '{
+          run_id: $run_id,
+          run_url: $run_url,
+          agents: .
+        }' \
+          --arg run_id "${{ github.run_id }}" \
+          --arg run_url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+          $USAGE_FILES > "$MERGED"
+
+        # Login with user-assigned Managed Identity
+        az login --identity --client-id "$MANAGED_IDENTITY_CLIENT_ID" --output none 2>/dev/null || {
+          echo "WARNING: Azure login failed — skipping usage upload"
+          exit 0
+        }
+
+        # Upload to blob storage
+        az storage blob upload \
+          --account-name "${{ inputs.azure-storage-account }}" \
+          --container-name "${{ inputs.azure-usage-container }}" \
+          --name "${{ github.run_id }}.json" \
+          --file "$MERGED" \
+          --content-type "application/json" \
+          --auth-mode login \
+          --overwrite 2>/dev/null || echo "WARNING: Blob upload failed (non-fatal)"
