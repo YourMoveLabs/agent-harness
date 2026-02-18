@@ -123,7 +123,7 @@ case "$ROLE" in
     writer)
         # Content generation: calls blog API, manages blob storage, tracks via gh
         # No Write/Edit — writer doesn't modify app code
-        ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(scripts/*),Read,Glob,Grep"
+        ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(sleep:*),Bash(echo:*),Bash(scripts/*),Read,Glob,Grep"
         ;;
     po|reviewer|triage|ux)
         # Read-only + GitHub CLI — no file editing
