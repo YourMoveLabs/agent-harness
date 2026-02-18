@@ -21,6 +21,11 @@ if [ ! -f config/goals.md ]; then
     exit 1
 fi
 
+# Check for objectives.md (optional but recommended)
+if [ ! -f config/objectives.md ]; then
+    log "NOTE: config/objectives.md not found — PM will run without signal evaluation"
+fi
+
 log "Running PM agent — evaluating goals and roadmap alignment"
 if "$HARNESS_ROOT/agents/pm.sh"; then
     log "  PM agent completed successfully"

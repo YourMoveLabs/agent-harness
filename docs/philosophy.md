@@ -120,6 +120,80 @@ When an agent is blocked by a missing capability (tool, permission, config),
 it creates a `harness/request` issue. The human sees the request, builds the
 capability in the harness, and redeploys. The agent's blocked work resumes.
 
+## Strategic Governance
+
+### The Board Member Model
+
+The human's role evolves from engineering manager to board member as the
+system matures. They set direction (goals), define success criteria
+(objectives and signals), and review performance (monthly). They don't
+manage daily work — the PM agent handles that.
+
+Three layers of governance, each with different owners and cadences:
+
+### Layer 1: Goals & Constraints (Human, Quarterly)
+
+Stable strategic direction. The "constitution" of the project.
+
+- Lives in: `config/goals.md`
+- Includes: Mission, goals, constraints, trade-off guidance
+- Changed: Only by the human, rarely
+
+Goals tell agents *what matters* and *what's off limits*. They should be
+stable — agents need a fixed star to navigate by. When goals conflict,
+trade-off guidance tells the PM which to prioritize.
+
+### Layer 2: Objectives & Signals (Human-Set, PM-Measured)
+
+Time-bounded outcomes with measurable signals. The bridge between
+"what matters" and "is it working."
+
+- Lives in: `config/objectives.md`
+- Human writes: Objectives, signals to watch, anti-signals
+- PM evaluates: Daily, reports on-track / at-risk / off-track
+- Human reviews: Monthly, adjusts objectives based on PM reports
+
+**Signals, not targets.** Targets create perverse incentives — agents
+optimize for the metric instead of the outcome. "Achieve 50% return
+visitors" makes agents game the metric. Signals inform the PM's judgment
+without becoming the goal themselves. The PM *watches* signals to decide
+whether the roadmap is serving the objectives, not to hit a number.
+
+### Layer 3: Tactical Roadmap (PM-Owned, Daily)
+
+Concrete work items connected to objectives.
+
+- Lives in: GitHub Project board
+- PM creates, prioritizes, and adjusts items
+- Each item links to an Objective (not just a Goal)
+- Now signal-informed: PM adjusts priorities when signals indicate drift
+
+### The Feedback Loop
+
+```
+Human (quarterly)          Human (monthly)           PM (daily)
+     |                          |                        |
+  Goals &                  Objectives &             Roadmap items
+  Constraints              Signals                  (GitHub Project)
+     |                          |                        |
+     v                          v                        v
+  "What matters"           "How we know"           "What to build"
+     |                          |                        |
+     +-----------> PM reads ----+-----> PM evaluates ----+
+```
+
+The PM reads goals and objectives, gathers evidence from shipped work
+and operational signals, assesses whether the project is trending toward
+or away from its objectives, and adjusts the roadmap accordingly. The
+human only intervenes when objectives need updating (monthly) or goals
+need revision (rare).
+
+This creates **more autonomy, not less**. Better signals give the PM
+more confidence in its decisions. Without signals, the PM operates in a
+partial vacuum — it can see what shipped but not whether it mattered.
+With signals, the PM can make informed strategic adjustments without
+waiting for human intervention.
+
 ## Phased Roadmap
 
 ### Phase 1: Make Prompts Project-Agnostic (current)
