@@ -40,3 +40,35 @@ runs:
       run: |
         chmod +x ".harness/${{ inputs.entry-point }}"
         ".harness/${{ inputs.entry-point }}"
+
+    - name: Post usage summary
+      if: always()
+      shell: bash
+      run: |
+        USAGE_FILE=$(ls -t /tmp/agent-logs/*-usage.json 2>/dev/null | head -1)
+        if [ -f "$USAGE_FILE" ]; then
+          COST=$(jq -r '.total_cost_usd // "?"' "$USAGE_FILE")
+          TURNS=$(jq -r '.num_turns // "?"' "$USAGE_FILE")
+          DURATION=$(jq -r '(.duration_api_ms // 0) / 1000 | floor' "$USAGE_FILE")
+          ROLE=$(jq -r '.role // "unknown"' "$USAGE_FILE")
+
+          echo "### Agent Usage: ${ROLE}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Cost | \$${COST} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Turns | ${TURNS} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| API Duration | ${DURATION}s |" >> "$GITHUB_STEP_SUMMARY"
+
+          # Add per-model breakdown if available
+          if jq -e '.model_usage | length > 0' "$USAGE_FILE" >/dev/null 2>&1; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Model breakdown:**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Model | Input | Output | Cost |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|-------|-------|--------|------|" >> "$GITHUB_STEP_SUMMARY"
+            jq -r '.model_usage | to_entries[] | "| \(.key) | \(.value.inputTokens) | \(.value.outputTokens) | $\(.value.costUSD) |"' "$USAGE_FILE" >> "$GITHUB_STEP_SUMMARY"
+          fi
+        else
+          echo "No usage data found (agent may not have produced JSON output)" >> "$GITHUB_STEP_SUMMARY"
+        fi

@@ -138,15 +138,50 @@ esac
 echo "Tools: ${ROLE} allowlist"
 
 # Run Claude in non-interactive mode with the role prompt.
-# -p: pass prompt directly (not via stdin)
-# --print: non-interactive, output only
+# --output-format json: returns structured JSON with result + usage metadata
 # CLAUDE.md is loaded automatically by Claude Code.
-claude --print \
+RAW_OUTPUT="$LOG_DIR/raw-output.json"
+USAGE_FILE="$LOG_DIR/${ROLE}-$(date +%Y%m%d-%H%M%S)-usage.json"
+
+claude -p "$(cat "$PROMPT_FILE")" \
     --allowedTools "$ALLOWED_TOOLS" \
-    -p "$(cat "$PROMPT_FILE")" \
-    2>&1 | tee "$LOG_FILE"
+    --output-format json \
+    2>"$LOG_FILE.stderr" | tee "$RAW_OUTPUT"
 
 EXIT_CODE=${PIPESTATUS[0]}
+
+# Extract the text result for human-readable log (same as --print output)
+if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then
+    jq -r '.result // empty' "$RAW_OUTPUT" > "$LOG_FILE"
+
+    # Extract usage metadata into a separate JSON file
+    jq '{
+      role: $role,
+      total_cost_usd: .total_cost_usd,
+      duration_ms: .duration_ms,
+      duration_api_ms: .duration_api_ms,
+      num_turns: .num_turns,
+      session_id: .session_id,
+      usage: .usage,
+      model_usage: .modelUsage,
+      timestamp: $ts
+    }' \
+      --arg role "$ROLE" \
+      --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      "$RAW_OUTPUT" > "$USAGE_FILE"
+
+    # Print summary to workflow log
+    echo ""
+    echo "=== Token Usage ==="
+    jq -r '"Cost: $\(.total_cost_usd // "?" | tostring) | Turns: \(.num_turns // "?" | tostring) | Duration: \((.duration_ms // 0) / 1000 | floor)s"' "$RAW_OUTPUT"
+    echo ""
+else
+    # Fallback: JSON parsing failed, save raw output as the log
+    echo "WARNING: Could not parse Claude JSON output — saving raw output"
+    cp "$RAW_OUTPUT" "$LOG_FILE" 2>/dev/null || true
+fi
+
+rm -f "$RAW_OUTPUT"
 
 echo ""
 echo "=== ${ROLE} agent finished (exit: $EXIT_CODE) ==="
