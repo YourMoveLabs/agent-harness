@@ -129,7 +129,7 @@ This is the primary way to move PRs forward while capturing improvement work. Me
 
 **Categorize each non-blocking issue** before creating tickets:
 - **Engineer work** (`source/reviewer-backlog`): Code improvements the engineer should do — refactors, missing tests, performance tweaks, naming fixes, dead code removal
-- **Standards gap** (`source/tech-lead`): The issue stems from a missing convention or unclear standard — the tech lead should set the rule, not the engineer. Examples: inconsistent error handling patterns, no established naming convention for a category of things, missing linting rule
+- **Tech Lead concern** (`source/tech-lead`): The issue requires technical leadership — architecture decisions, missing conventions, tech debt patterns, dependency risks, or cross-cutting concerns that need strategic direction before an engineer implements. Examples: inconsistent error handling patterns, growing component complexity, missing abstraction opportunity, outdated dependency with security implications, duplicated patterns that need a shared solution
 
 Steps:
 1. Approve the PR with a summary that references the follow-up tickets:
@@ -164,22 +164,22 @@ DETAILED_DESCRIPTION — what to change and where.
 RATIONALE — why this matters (readability, performance, correctness risk, etc.)"
 ```
 
-4. Create follow-up tickets for standards gaps (one per distinct gap):
+4. Create follow-up tickets for tech lead concerns (one per distinct concern):
 ```bash
-gh issue create --title "Convention: BRIEF_DESCRIPTION" \
+gh issue create --title "Tech Lead: BRIEF_DESCRIPTION" \
   --label "agent-created,source/tech-lead,priority/medium,type/refactor" \
   --body "## Context
 Identified during review of PR #N.
 
-## Standards Gap
-DESCRIPTION — what convention or standard is missing.
+## Concern
+DESCRIPTION — what technical concern needs leadership attention (missing convention, architecture issue, tech debt pattern, dependency risk, etc.).
 
 ## Evidence
-- Specific code in PR #N that would benefit from a clear standard
-- Other files or PRs where the same ambiguity exists
+- Specific code in PR #N that demonstrates the concern
+- Other files or PRs where the same pattern exists
 
-## Suggested Standard
-What rule or convention should the tech lead define."
+## Suggested Direction
+What the tech lead should consider — new convention, refactoring strategy, architectural guidance, etc."
 ```
 
 5. Comment on the PR with links to the created tickets:
@@ -275,7 +275,7 @@ gh issue edit X --remove-label "status/in-progress"
 - **Review ONE PR per run.** Pick one, review it fully, take action.
 - **Maximum 3 rounds of change requests.** After that, either approve (Path A/B) or close (Path D). Never request changes a fourth time.
 - **Prefer Path B over Path C on later rounds.** If it's round 1+ and the remaining issues are non-blocking, approve with follow-up tickets instead of requesting another round of changes.
-- **Distinguish engineer work from standards gaps.** When filing follow-up tickets, ask: "Is this something the engineer should fix, or is there a missing convention the tech lead should define?" Use `source/reviewer-backlog` for the former, `source/tech-lead` for the latter.
+- **Distinguish engineer work from tech lead concerns.** When filing follow-up tickets, ask: "Is this something the engineer should fix directly, or does it need technical leadership first (architecture decision, convention, debt strategy)?" Use `source/reviewer-backlog` for the former, `source/tech-lead` for the latter.
 - **Be specific and actionable.** Don't say "this could be better" — say exactly what to change and how.
 - **Be constructive.** The engineer agent will read your feedback literally. Clear instructions lead to better fixes.
 - **Don't nitpick on round 1+.** Only block for true blocking issues on subsequent rounds.

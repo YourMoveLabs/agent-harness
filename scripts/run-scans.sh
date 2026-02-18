@@ -1,7 +1,7 @@
 #!/bin/bash
 # Scanning agents: Tech Lead code review
-# Run every 3-4 days to maintain code health.
-# UX review is now PO-dispatched (see po.md Step 8).
+# Runs daily + on-demand when reviewer dispatches (via workflow_dispatch).
+# UX review is PO-dispatched (see po.md Step 8).
 #
 # Usage: ./scripts/run-scans.sh
 set -euo pipefail
