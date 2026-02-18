@@ -67,13 +67,13 @@ date +%Y-%m-%d
 
 Decide on a slug from your topic (lowercase, hyphens, no special characters). Remember both the slug and focus keyphrase.
 
-Then call the API with the values substituted directly into the JSON:
+Then call the API with the values substituted directly into the JSON. The payload must include all profile fields — missing fields produce unstyled or incomplete HTML:
 
 ```bash
 curl -s -X POST "https://aipostgenfuncapp.azurewebsites.net/api/generate" \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: $GENERATION_API_KEY" \
-  -d '{"content_type":"blog","output_path":"fishbowl/articles/YYYY-MM-DD-your-slug","raw_idea_content":"YOUR ARTICLE IDEA","focus_keyphrase":"your keyphrase","style_profile":{"content_depth":"comprehensive"},"publishing_profile":{"site_name":"Agent Fishbowl","author":"Fishbowl Writer"},"audience_context":{"ideal_buyer":"Software developers and engineering leaders building with AI agents","knowledge_level":"intermediate","primary_problem":"Need practical, proven patterns for building multi-agent systems that work in production"}}'
+  -d '{"content_type":"blog","output_path":"fishbowl/articles/YYYY-MM-DD-your-slug","raw_idea_content":"YOUR ARTICLE IDEA","focus_keyphrase":"your keyphrase","style_profile":{"content_depth":"comprehensive","cta_context":"Explore how AI agent teams build, review, and ship code autonomously","cta_url":"https://agentfishbowl.com"},"publishing_profile":{"site_name":"Agent Fishbowl","author":"Fishbowl Writer","host_url":"https://agentfishbowl.com","email":"writer@agentfishbowl.com","social_handles":["https://github.com/YourMoveLabs/agent-fishbowl"]},"audience_context":{"ideal_buyer":"Software developers and engineering leaders building with AI agents","knowledge_level":"intermediate","primary_problem":"Need practical, proven patterns for building multi-agent systems that work in production","buyer_problems":"Unreliable agent pipelines, poor error recovery, no observability into multi-agent workflows","buyer_goals":"Production-grade agent systems that are maintainable, observable, and recover gracefully from failures"}}'
 ```
 
 Read the response. Remember the `instance_id` and `status_url` from the JSON output. If the response contains `"error"`, skip to Step 7.
@@ -206,9 +206,19 @@ Starts async blog generation. Returns immediately.
 | Field | Type | Description |
 |-------|------|-------------|
 | `focus_keyphrase` | string | SEO target keyword |
-| `style_profile` | object | `{ content_depth, voice_style, image_style, cta_context, cta_url }` |
-| `publishing_profile` | object | `{ site_name, author, host_url, email }` |
-| `audience_context` | object | `{ ideal_buyer, knowledge_level, primary_problem, buyer_problems, buyer_goals }` |
+| `style_profile.content_depth` | string | `"comprehensive"` for full-length posts |
+| `style_profile.cta_context` | string | CTA description (enables CTA section in HTML) |
+| `style_profile.cta_url` | string | CTA button target URL (both cta fields required for CTA) |
+| `publishing_profile.site_name` | string | Site name for attribution and JSON-LD |
+| `publishing_profile.author` | string | Author name for byline and JSON-LD |
+| `publishing_profile.host_url` | string | Base URL for canonical links and image paths |
+| `publishing_profile.email` | string | Email for gravatar avatar |
+| `publishing_profile.social_handles` | array | Social URLs for JSON-LD sameAs (E-E-A-T) |
+| `audience_context.ideal_buyer` | string | Target audience description |
+| `audience_context.knowledge_level` | string | `"intermediate"` — controls content depth |
+| `audience_context.primary_problem` | string | Core problem the audience faces |
+| `audience_context.buyer_problems` | string | Pain points for content framing |
+| `audience_context.buyer_goals` | string | Desired outcomes for value propositions |
 
 **Response (202):**
 ```json
