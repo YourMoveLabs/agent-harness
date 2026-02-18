@@ -112,12 +112,13 @@ if [[ "$STUCK" == "true" ]]; then
 fi
 
 if [[ "$REVIEWABLE" == "true" ]]; then
-    # Not draft, not approved, not authored by the reviewer bot
+    # Not draft, not approved, not authored by the reviewer bot, no CI failures
     REVIEWER_PATTERN="${REVIEWER_BOT_NAME:-fishbowl-reviewer}"
     JQ_FILTER+=' | [.[] | select(
         .isDraft == false
         and .reviewDecision != "APPROVED"
         and (.author | test("'"$REVIEWER_PATTERN"'") | not)
+        and (.labels | any(. == "ci/failed") | not)
     )]'
 fi
 

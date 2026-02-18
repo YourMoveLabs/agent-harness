@@ -55,6 +55,14 @@ This returns PRs that are not drafts, not approved, and not authored by the revi
 
 If no reviewable PRs exist, report "No PRs to review" and stop.
 
+**CI Gate**: Before reviewing, check CI status:
+
+```bash
+gh pr checks N
+```
+
+If any check is **failing** or **pending**, do NOT review this PR. Say "Skipping PR #N — CI has not passed yet" and **STOP**. The CI notification bot handles failures automatically — do not duplicate its notification.
+
 ## Step 2: Read the PR thoroughly
 
 Read the PR details and the full diff:
