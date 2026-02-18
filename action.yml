@@ -133,6 +133,16 @@ runs:
         USAGE_FILES=$(ls "$USAGE_DIR"/*-usage.json 2>/dev/null || true)
         [ -z "$USAGE_FILES" ] && exit 0
 
+        # Inject agent result summary into each usage file
+        for USAGE_FILE in $USAGE_FILES; do
+          LOG_FILE="${USAGE_FILE%-usage.json}.log"
+          if [ -f "$LOG_FILE" ]; then
+            SUMMARY=$(tail -50 "$LOG_FILE")
+            jq --arg summary "$SUMMARY" '. + {result_summary: $summary}' "$USAGE_FILE" > "${USAGE_FILE}.tmp"
+            mv "${USAGE_FILE}.tmp" "$USAGE_FILE"
+          fi
+        done
+
         # Merge all usage files into a single envelope
         MERGED="$USAGE_DIR/usage-merged.json"
         jq -s '{
