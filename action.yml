@@ -41,6 +41,15 @@ runs:
           echo "WARNING: No .env found"
         fi
 
+    - name: Enable project git hooks
+      shell: bash
+      run: |
+        if [ -d ".githooks" ]; then
+          git config core.hooksPath .githooks
+          chmod +x .githooks/*
+          echo "Git hooks enabled from .githooks/"
+        fi
+
     - name: Run agent
       shell: bash
       run: |
