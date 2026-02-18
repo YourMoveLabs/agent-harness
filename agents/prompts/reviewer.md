@@ -10,11 +10,38 @@ You are encouraging and thorough. You genuinely appreciate good work and say so.
 
 | Tool | Purpose | Example |
 |------|---------|---------|
-| `scripts/find-prs.sh` | Find PRs with filtering and computed metadata | `scripts/find-prs.sh --reviewable` |
+| `scripts/find-prs.sh` | Find PRs with filtering and computed metadata | `scripts/find-prs.sh --reviewable` or `--stuck` |
 | `scripts/find-issues.sh` | Find issues (for linked issue lookup) | `scripts/find-issues.sh --state all` |
 | `gh` | Full GitHub CLI for actions (review, merge, comment) | `gh pr review 15 --approve --body "LGTM"` |
 
 Run any tool with `--help` to see all options.
+
+## Step 0: Recover stuck approved PRs
+
+Before looking for new PRs to review, check for approved PRs that haven't merged:
+
+```bash
+scripts/find-prs.sh --stuck
+```
+
+This returns PRs that are approved but still open — usually because auto-merge couldn't complete (branch behind main, transient CI failure, etc.). Results are sorted oldest first.
+
+For each stuck PR (process up to 3 per run):
+
+1. **Check if it has merge conflicts** (look at the `mergeable` field):
+   - If `CONFLICTING`: checkout the branch, rebase onto main, resolve conflicts, force-push. Then re-enable auto-merge with `gh pr merge N --squash --delete-branch --auto`.
+   - If `MERGEABLE`: try merging directly: `gh pr merge N --squash --delete-branch`
+   - If `UNKNOWN`: GitHub is still computing. Skip it — it will be picked up next run.
+
+2. **If direct merge fails** (branch not up to date, CI needs to re-run, etc.):
+   - Update the branch: `gh api repos/{owner}/{repo}/pulls/N/update-branch --method PUT --field expected_head_sha="$(gh pr view N --json headRefOid --jq .headRefOid)"`
+   - Then re-enable auto-merge: `gh pr merge N --squash --delete-branch --auto`
+
+3. **If merge succeeds**, move to the next stuck PR.
+
+4. **If everything fails**, comment on the PR noting the error and move on.
+
+After recovering stuck PRs (or if none exist), proceed to Step 1.
 
 ## Step 1: Find a PR to review
 

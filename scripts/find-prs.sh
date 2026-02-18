@@ -9,6 +9,7 @@ STATE="open"
 LIMIT=10
 REVIEWABLE=false
 NEEDS_FIX=false
+STUCK=false
 AUTHOR=""
 
 # --- Help ---
@@ -21,6 +22,7 @@ Find GitHub pull requests with filtering and computed metadata.
 Options:
   --reviewable          Not draft, not approved, not authored by current user
   --needs-fix           PRs with CHANGES_REQUESTED, ci/failed, or merge conflicts
+  --stuck               Approved PRs that haven't merged (auto-merge stuck)
   --state STATE         open (default), merged, closed, all
   --author AUTHOR       Filter by author login
   --limit N             Max results (default: 10)
@@ -38,6 +40,9 @@ Examples:
   # Find PRs ready for review (reviewer Step 1)
   scripts/find-prs.sh --reviewable
 
+  # Find approved PRs that are stuck (reviewer Step 0)
+  scripts/find-prs.sh --stuck
+
   # Find recently merged PRs (tech lead review)
   scripts/find-prs.sh --state merged --limit 10
 
@@ -51,6 +56,7 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --reviewable) REVIEWABLE=true; shift ;;
         --needs-fix) NEEDS_FIX=true; shift ;;
+        --stuck) STUCK=true; shift ;;
         --state) STATE="$2"; shift 2 ;;
         --author) AUTHOR="$2"; shift 2 ;;
         --limit) LIMIT="$2"; shift 2 ;;
@@ -96,6 +102,13 @@ JQ_FILTER='.'
 if [[ "$NEEDS_FIX" == "true" ]]; then
     # PRs that need engineer attention: reviewer requested changes, CI failed, or merge conflicts
     JQ_FILTER+=' | [.[] | select(.reviewDecision == "CHANGES_REQUESTED" or (.labels | any(. == "ci/failed")) or .mergeable == "CONFLICTING")]'
+fi
+
+if [[ "$STUCK" == "true" ]]; then
+    # Approved PRs that haven't merged — auto-merge is stuck (branch behind main, etc.)
+    JQ_FILTER+=' | [.[] | select(.reviewDecision == "APPROVED" and .mergeable != "CONFLICTING")]'
+    # Sort oldest first (lowest number) so we drain the queue in order
+    JQ_FILTER+=' | sort_by(.number)'
 fi
 
 if [[ "$REVIEWABLE" == "true" ]]; then
