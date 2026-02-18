@@ -9,7 +9,7 @@ PROJECT="${PROJECT_NUMBER:-1}"
 OWNER="${PROJECT_OWNER:-YourMoveLabs}"
 
 README_FILE="$HARNESS_ROOT/docs/project-board-readme.md"
-DESCRIPTION="AI agent team roadmap — planning, execution, and maintenance for Agent Fishbowl"
+DESCRIPTION="A real software product built entirely by AI agents — in public. Zero human code commits."
 
 if [ ! -f "$README_FILE" ]; then
     echo "ERROR: $README_FILE not found"

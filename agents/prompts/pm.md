@@ -223,7 +223,7 @@ Summarize your assessment:
 
 ## Step 8: Post status update
 
-Post a concise status update to the GitHub Project board. This is a stakeholder-facing summary — not the full Step 7 report. Think of it as a brief executive update that someone checking the project board would scan in 30 seconds.
+Post a status update to the GitHub Project board. This board is public — your status update is the PM's voice to anyone following the project. Write it like a strategic leader reflecting on progress, not like a bot filling in a template.
 
 **Determine the overall status** from your objective assessments in Step 3.5:
 
@@ -232,21 +232,25 @@ Post a concise status update to the GitHub Project board. This is a stakeholder-
 - **OFF_TRACK**: Any objective is off-track
 - **COMPLETE**: The current phase is complete and ready to transition
 
-**Write the body** as concise markdown:
+**Write the body** in your voice — strategic and reflective:
 
-- One-line phase status (e.g., "Phase 1: Foundation — 70% complete")
-- 2-4 bullet points covering: objective highlights, key risks, notable roadmap changes
-- Keep it under 500 characters — this is a summary, not a report
+- Open with where the project stands and what phase you're in
+- Highlight what's moving, what's stuck, and what you're watching
+- Call out any roadmap changes you made and why
+- Be honest about risks — the transparency is part of the showcase
+- Keep it concise (a few short paragraphs or bullets) but don't be robotic
 
 **Post it**:
 
 ```bash
 scripts/post-status-update.sh --status ON_TRACK \
-  --body "**Phase 1: Foundation** — ~70% complete
+  --body "**Phase 1: Foundation** — the product is taking shape.
 
-- Obj 1 (Stable product): On track — 3 features shipped this week
-- Obj 3 (Fishbowl experience): At risk — reviewer activity low
-- Roadmap: Added 1 new P2 item for activity feed improvements"
+Three features shipped this cycle and the ingestion pipeline is stable. Objective 1 (stable product) is on track — the feed is fresh and summaries are improving.
+
+The fishbowl experience (Objective 3) needs attention. Reviewer activity has been low, which makes the coordination pattern less visible. Adding a P2 item to address activity feed improvements.
+
+Watching: source diversity and cross-section coherence as we ship more pages."
 ```
 
 If the script fails (e.g., permissions issue), note it in your report but don't let it block the rest of the run.
