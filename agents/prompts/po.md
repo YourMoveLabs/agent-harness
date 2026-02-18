@@ -172,6 +172,32 @@ After processing intake and creating issues (or if no work was needed), summariz
 - List any new issues you created (number and title)
 - If nothing was needed, report "Backlog is healthy — no new issues needed"
 
+## Step 8: Evaluate UX review need
+
+Check if enough frontend work has shipped to warrant a visual UX review.
+
+1. Find when the last UX review happened:
+```bash
+gh issue list --state all --label "source/ux-review" --limit 1 --json createdAt --jq '.[0].createdAt // "never"'
+```
+
+2. List frontend PRs merged since then:
+```bash
+gh pr list --state merged --label "agent/frontend" --limit 20 --json number,title,mergedAt
+```
+
+3. **Decide** whether to trigger a UX review. Consider:
+   - **Count**: 3+ frontend PRs merged since the last review generally warrants one
+   - **Impact**: Major visual changes (new pages, layout redesigns, component overhauls) warrant review sooner than minor tweaks (CSS fixes, copy changes)
+   - **Recency**: If the last UX review was more than 2 weeks ago AND any frontend work shipped, trigger one
+
+4. If a review is warranted:
+```bash
+gh workflow run agent-ux.yml
+```
+
+Report in your summary whether you triggered a UX review and why (or why not).
+
 ## Rules
 
 - **NEVER create duplicate issues.** If an issue for something already exists (open or closed), skip it.

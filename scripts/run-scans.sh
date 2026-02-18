@@ -1,6 +1,7 @@
 #!/bin/bash
-# Scanning agents: Tech Lead + UX review
-# Run every 3-4 days to maintain code health and UX quality.
+# Scanning agents: Tech Lead code review
+# Run every 3-4 days to maintain code health.
+# UX review is now PO-dispatched (see po.md Step 8).
 #
 # Usage: ./scripts/run-scans.sh
 set -euo pipefail
@@ -12,26 +13,16 @@ cd "$PROJECT_ROOT"
 
 log() { echo "[scans $(date -u +%H:%M:%S)] $*"; }
 
-log "=== Scanning Agents ==="
+log "=== Tech Lead Scan ==="
 echo ""
 
 # ── Tech Lead: standards + architecture ──────────────────────────────────────
-log "Phase 1: Tech Lead agent — reviewing standards and architecture"
+log "Tech Lead agent — reviewing standards and architecture"
 if "$HARNESS_ROOT/agents/tech-lead.sh"; then
     log "  Tech Lead completed successfully"
 else
-    log "  Tech Lead exited with error (non-fatal, continuing)"
+    log "  Tech Lead exited with error (non-fatal)"
 fi
 
 echo ""
-
-# ── UX Reviewer: user experience ─────────────────────────────────────────────
-log "Phase 2: UX agent — reviewing user experience"
-if "$HARNESS_ROOT/agents/ux.sh"; then
-    log "  UX agent completed successfully"
-else
-    log "  UX agent exited with error (non-fatal)"
-fi
-
-echo ""
-log "=== Scanning complete ==="
+log "=== Scan complete ==="
