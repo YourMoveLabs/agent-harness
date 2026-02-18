@@ -41,6 +41,15 @@ runs:
           echo "WARNING: No .env found"
         fi
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dev tools
+      shell: bash
+      run: pip install ruff
+
     - name: Enable project git hooks
       shell: bash
       run: |
