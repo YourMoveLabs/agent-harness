@@ -127,7 +127,7 @@ gh pr comment N --body "Rebased onto main — merge conflicts resolved."
 Find the highest-priority unassigned issue:
 
 ```bash
-scripts/find-issues.sh --unassigned --no-label "status/blocked" --sort priority
+scripts/find-issues.sh --unassigned --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
 ```
 
 This returns issues sorted by priority (high > medium > low), then by type (bugs first), then oldest first. Pick the first result.
