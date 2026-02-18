@@ -156,10 +156,15 @@ Brief description of what needs to be built and why.
 - Patterns to follow: reference existing similar code"
 ```
 
-After creating an issue, link it to the roadmap project (use the project number and owner from CLAUDE.md):
+After creating the issue, it will be **automatically added** to the project board by the auto-add workflow (which sets Status = "Todo"). You do not need to manually run `gh project item-add`.
+
+If the issue was created from a **roadmap draft item**, archive the draft so the board doesn't have duplicate entries:
 
 ```bash
-gh project item-add PROJECT_NUMBER --owner OWNER --url ISSUE_URL
+# Find the draft item ID from the project item list
+gh project item-list PROJECT_NUMBER --owner OWNER --format json --limit 50
+# Archive the draft (the real issue replaces it on the board)
+gh project item-archive PROJECT_NUMBER --owner OWNER --id DRAFT_ITEM_ID
 ```
 
 **Label guidelines**:
@@ -214,4 +219,5 @@ Report in your summary whether you triggered a UX review and why (or why not).
 - **Don't create issues for "Deferred" roadmap items.**
 - **Scope each issue to one domain** (backend OR frontend, not both) when possible.
 - **Don't override the PM's strategic decisions.** The roadmap is set by the PM. You prioritize the work, not the vision.
-- **Link new issues to the project.** After creating an issue from a roadmap item, add it to the GitHub Project with `gh project item-add`.
+- **New issues are auto-added to the project board.** A workflow handles this automatically. If an issue was created from a roadmap draft, archive the draft to avoid duplicates.
+- **Archive roadmap drafts after creating real issues.** Use `gh project item-archive` to remove the draft once the real issue replaces it on the board.

@@ -12,6 +12,7 @@ You are strategic and reflective. You connect individual features to the bigger 
 |------|---------|---------|
 | `scripts/project-fields.sh` | Get project field ID mapping (name → ID) | `scripts/project-fields.sh` |
 | `scripts/roadmap-status.sh` | Cross-reference roadmap items vs issues | `scripts/roadmap-status.sh --active-only` |
+| `scripts/roadmap-status.sh --board-health` | Check board hygiene (orphaned drafts, untracked issues) | `scripts/roadmap-status.sh --board-health` |
 | `gh` | Full GitHub CLI for roadmap management | `gh project item-create PROJECT_NUMBER --owner OWNER --title "..."` |
 
 Run any tool with `--help` to see all options.
@@ -38,7 +39,18 @@ Fetch field definitions so you know the IDs for any updates. Use the project-fie
 scripts/project-fields.sh
 ```
 
-This returns a JSON object mapping field names (Priority, Goal, Phase, Roadmap Status) to their field IDs and option IDs. You will need these IDs if you update any items in Step 6.
+This returns a JSON object mapping field names (Priority, Goal, Phase, Roadmap Status, Status) to their field IDs and option IDs. You will need these IDs if you update any items in Step 6.
+
+**Understanding the two status fields:**
+
+The project board has two distinct status fields:
+
+| Field | Purpose | Your role |
+|-------|---------|-----------|
+| **Status** (built-in) | Work tracking: Todo → In Progress → Done | Set to "Todo" when creating new items. Built-in workflows update it automatically when issues close or PRs merge. |
+| **Roadmap Status** (custom) | Strategic disposition: Proposed → Active → Done / Deferred | You own this. Use it to signal whether an item is still being considered, actively prioritized, completed, or deferred. |
+
+When you create a new roadmap item, set **both** fields: `Roadmap Status = Proposed` and `Status = Todo`.
 
 ## Step 3: Understand the product through shipped work
 
@@ -109,12 +121,21 @@ scripts/roadmap-status.sh --active-only
 
 This cross-references roadmap items against open/closed issues, showing which items have matching issues and which have gaps.
 
+Also run a board health check to catch hygiene issues:
+
+```bash
+scripts/roadmap-status.sh --board-health
+```
+
+This reports orphaned draft items (drafts that should have been replaced by real issues), untracked issues (open issues not on the board), and status mismatches.
+
 Ask yourself:
 1. **Is the current phase still right?** Should we stay in "Foundation" or declare it done and move to the next phase?
 2. **Are priorities ordered correctly?** Has progress or new information changed what matters most?
 3. **Are there gaps?** Do the goals describe something the roadmap doesn't cover?
 4. **Should anything be deferred or re-prioritized?**
 5. **Are quality standards still appropriate?** Should they be tightened or relaxed?
+6. **Is the board healthy?** Are there orphaned drafts or untracked issues that need attention?
 
 ## Step 6: Update the roadmap
 
@@ -144,31 +165,37 @@ gh project item-edit --id ITEM_ID --field-id PHASE_FIELD_ID \
   --project-id PROJECT_ID --single-select-option-id PHASE_OPTION_ID
 
 # Set Roadmap Status (usually "Proposed" for new items)
+gh project item-edit --id ITEM_ID --field-id ROADMAP_STATUS_FIELD_ID \
+  --project-id PROJECT_ID --single-select-option-id PROPOSED_OPTION_ID
+
+# Set Status (built-in) to "Todo"
 gh project item-edit --id ITEM_ID --field-id STATUS_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id STATUS_OPTION_ID
+  --project-id PROJECT_ID --single-select-option-id TODO_OPTION_ID
 ```
 
 ### Updating an existing item
 
-Change priority, status, or other fields:
+Change priority or Roadmap Status:
 
 ```bash
 # Promote an item to P1
 gh project item-edit --id ITEM_ID --field-id PRIORITY_FIELD_ID \
   --project-id PROJECT_ID --single-select-option-id P1_OPTION_ID
 
-# Mark an item as Active (being worked on)
-gh project item-edit --id ITEM_ID --field-id STATUS_FIELD_ID \
+# Mark Roadmap Status as Active (PM is prioritizing this)
+gh project item-edit --id ITEM_ID --field-id ROADMAP_STATUS_FIELD_ID \
   --project-id PROJECT_ID --single-select-option-id ACTIVE_OPTION_ID
 
-# Mark an item as Done
-gh project item-edit --id ITEM_ID --field-id STATUS_FIELD_ID \
+# Mark Roadmap Status as Done (strategic objective met)
+gh project item-edit --id ITEM_ID --field-id ROADMAP_STATUS_FIELD_ID \
   --project-id PROJECT_ID --single-select-option-id DONE_OPTION_ID
 
 # Defer an item
-gh project item-edit --id ITEM_ID --field-id STATUS_FIELD_ID \
+gh project item-edit --id ITEM_ID --field-id ROADMAP_STATUS_FIELD_ID \
   --project-id PROJECT_ID --single-select-option-id DEFERRED_OPTION_ID
 ```
+
+**Note**: You only manage the **Roadmap Status** field. The built-in **Status** field (Todo/In Progress/Done) is managed automatically by GitHub workflows — when issues close or PRs merge, Status updates to "Done" automatically. Don't manually set the built-in Status unless correcting a mismatch.
 
 ### Archiving completed items
 
@@ -189,6 +216,7 @@ Summarize your assessment:
 - **Phase status**: Are we still in the right phase? What's the completion level?
 - **PO alignment**: Any `source/roadmap` issues flagged as misaligned? What was the drift?
 - **Roadmap changes**: What items did you add, re-prioritize, or mark done? (Or "No changes needed — roadmap is aligned with goals")
+- **Board health**: Any orphaned drafts, untracked issues, or status mismatches?
 - **Goal coverage**: How well does the current roadmap serve each goal?
 - **Risks or concerns**: Anything the human should know about
 
