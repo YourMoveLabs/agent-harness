@@ -70,7 +70,7 @@ Decide on a slug from your topic (lowercase, hyphens, no special characters). Re
 Then call the API with the values substituted directly into the JSON:
 
 ```bash
-curl -s -X POST "https://aipostgenfuncappdev.azurewebsites.net/api/generate" \
+curl -s -X POST "https://aipostgenfuncapp.azurewebsites.net/api/generate" \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: $GENERATION_API_KEY" \
   -d '{"content_type":"blog","output_path":"fishbowl/articles/YYYY-MM-DD-your-slug","raw_idea_content":"YOUR ARTICLE IDEA","focus_keyphrase":"your keyphrase","style_profile":{"content_depth":"comprehensive"},"publishing_profile":{"site_name":"Agent Fishbowl","author":"Fishbowl Writer"},"audience_context":{"ideal_buyer":"Software developers and engineering leaders building with AI agents","knowledge_level":"intermediate","primary_problem":"Need practical, proven patterns for building multi-agent systems that work in production"}}'
@@ -85,7 +85,7 @@ Poll the status endpoint every 15 seconds. Generation typically takes 2-4 minute
 Check the status by calling curl (substitute the instance_id you remembered):
 
 ```bash
-curl -s "https://aipostgenfuncappdev.azurewebsites.net/api/generate/status/YOUR_INSTANCE_ID" \
+curl -s "https://aipostgenfuncapp.azurewebsites.net/api/generate/status/YOUR_INSTANCE_ID" \
   -H "X-Api-Key: $GENERATION_API_KEY"
 ```
 
@@ -185,7 +185,7 @@ PASTE_ERROR_RESPONSE_HERE
 
 ## API Reference
 
-**Base URL**: `https://aipostgenfuncappdev.azurewebsites.net`
+**Base URL**: `https://aipostgenfuncapp.azurewebsites.net`
 
 ### POST /api/generate
 
