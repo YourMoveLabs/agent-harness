@@ -21,7 +21,7 @@ CONFIG_FILE="$HARNESS_ROOT/config/roles.json"
 if [ -z "$ROLE" ]; then
     echo "Usage: $0 <role>"
     echo "Available roles:"
-    jq -r '[.roles | keys[], (.roles | to_entries[] | select(.value | has("instances")) | .value.instances[])] | sort | .[]' "$CONFIG_FILE"
+    jq -r '[.roles | keys[], (.roles | to_entries[] | select(.value | type == "object" and has("instances")) | .value.instances[])] | sort | .[]' "$CONFIG_FILE"
     exit 1
 fi
 
@@ -34,7 +34,7 @@ ROLE_CONFIG=$(jq -c --arg r "$ROLE" '
         { parent: $r, config: .roles[$r] }
     else
         .roles | to_entries[]
-            | select(.value | has("instances"))
+            | select(.value | type == "object" and has("instances"))
             | select(.value.instances | index($r))
             | { parent: .key, config: .value }
     end // empty
@@ -43,7 +43,7 @@ ROLE_CONFIG=$(jq -c --arg r "$ROLE" '
 if [ -z "$ROLE_CONFIG" ]; then
     echo "ERROR: Unknown role '$ROLE'"
     echo "Available roles:"
-    jq -r '[.roles | keys[], (.roles | to_entries[] | select(.value | has("instances")) | .value.instances[])] | sort | .[]' "$CONFIG_FILE"
+    jq -r '[.roles | keys[], (.roles | to_entries[] | select(.value | type == "object" and has("instances")) | .value.instances[])] | sort | .[]' "$CONFIG_FILE"
     exit 1
 fi
 
@@ -151,7 +151,7 @@ git config core.hooksPath .githooks
 # Expand ${COMMON} and ${API} presets, then set ALLOWED_TOOLS.
 ALLOWED_TOOLS=$(jq -r --arg r "$ROLE" '
     ._tool_presets as $presets |
-    (if .roles[$r] then .roles[$r] else .roles | to_entries[] | select(.value | has("instances")) | select(.value.instances | index($r)) | .value end) |
+    (if .roles[$r] then .roles[$r] else .roles | to_entries[] | select(.value | type == "object" and has("instances")) | select(.value.instances | index($r)) | .value end) |
     .tools |
     gsub("\\$\\{COMMON\\}"; $presets.COMMON) |
     gsub("\\$\\{API\\}"; $presets.API)
@@ -172,7 +172,7 @@ USAGE_FILE="$LOG_DIR/${ROLE}-$(date +%Y%m%d-%H%M%S)-usage.json"
 
 # --- Prompt assembly ---
 # If --job is specified: identity + job instructions + partials
-# If no --job: legacy monolithic prompt + partials (backward compatible)
+# If no --job: monolithic prompt + partials
 if [ -n "$JOB" ]; then
     IDENTITY_FILE="$HARNESS_ROOT/agents/prompts/identities/${PROMPT_ROLE}.md"
     JOB_FILE="$HARNESS_ROOT/agents/prompts/jobs/${PROMPT_ROLE}/${JOB}.md"
