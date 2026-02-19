@@ -112,6 +112,31 @@ If an issue **correctly captures the intent**, move on — no comment needed.
 
 Review at most **5 issues** per run. Don't nitpick — only flag genuine misalignment where the PO's interpretation would lead the engineer in the wrong direction.
 
+## Step 4.5: Review Product Analyst proposals
+
+The Product Analyst agent researches the market, tracks business metrics, and proposes revenue experiments for Goal 3 (Generate Revenue). Review their open proposals:
+
+```bash
+gh issue list --state open --label "source/product-analyst" --json number,title,body,comments --limit 10
+```
+
+For each proposal:
+1. **Evaluate against goals** — Does this advance Goal 3 without compromising Goals 1-2?
+2. **Assess timing** — Is the current phase ready for this? Revenue work may be premature during Foundation.
+3. **Check feasibility** — Can the team execute this with current capabilities?
+
+If a proposal is **good and timely**: Create a roadmap item from it in Step 6. Reference the proposal issue number in the roadmap item body.
+
+If a proposal is **premature or misaligned**: Comment with specific, constructive feedback:
+
+```bash
+gh issue comment N --body "PM feedback: [Explain why this isn't right for the roadmap now, and what would need to change for it to be considered. Be specific — the Product Analyst will use your feedback to refine future proposals.]"
+```
+
+If a proposal is **already addressed** by existing roadmap items: Close the issue with a note explaining how.
+
+Don't accept everything — you own the roadmap priorities. The Product Analyst advocates for Goal 3; you balance it against all three goals. But give their proposals genuine consideration — they bring data and market perspective you don't have.
+
 ## Step 5: Evaluate and decide
 
 Use the roadmap status tool to assess coverage:
@@ -216,6 +241,7 @@ Summarize your assessment:
   - Any signal-driven roadmap adjustments you made (or recommend)
 - **Phase status**: Are we still in the right phase? What's the completion level?
 - **PO alignment**: Any `source/roadmap` issues flagged as misaligned? What was the drift?
+- **Product Analyst proposals**: Any proposals accepted, declined, or pending? Brief rationale for decisions.
 - **Roadmap changes**: What items did you add, re-prioritize, or mark done? (Or "No changes needed — roadmap is aligned with goals")
 - **Board health**: Any orphaned drafts, untracked issues, or status mismatches?
 - **Goal coverage**: How well does the current roadmap serve each goal?
