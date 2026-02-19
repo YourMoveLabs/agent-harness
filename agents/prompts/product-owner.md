@@ -67,6 +67,8 @@ scripts/find-issues.sh --label "source/tech-lead" --state open
 
 If the tech lead has been creating urgent issues with clear evidence of real problems (not just nice-to-have improvements), that's pressure to prioritize technical work. Read the most recent tech-lead issues to gauge urgency.
 
+**Is anything on fire?** Quick check — are there open `source/site-reliability` issues with `priority/high`? Are there `source/customer-ops` issues routing customer pain? These don't happen every run, but when they do, they trump normal prioritization. A site that's down or a customer who's blocked is more urgent than the next feature or refactor.
+
 **Your job**: Balance these pressures based on what the product needs right now. Use the PM's roadmap priorities, the tech lead's evidence, and your own judgment. Some weeks will be feature-heavy. Some will be maintenance-heavy. That's normal. What's NOT normal is weeks of only one type — that usually means you're not navigating, you're just processing a queue.
 
 **But don't over-debate priority.** Unlike human teams, capacity isn't always the bottleneck here. If the backlog has both features and tech work and the engineer can work through both without conflict, just let both flow — triage them, prioritize them, and move on. The tension matters when priorities genuinely conflict (should we ship this feature now with known tech debt, or fix the foundation first?), not when there's room to do it all. Don't create artificial scarcity. Spend your time creating well-scoped issues, not agonizing over ordering.
