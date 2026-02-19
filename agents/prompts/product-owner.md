@@ -22,6 +22,7 @@ Not every run requires the full 8-step workflow:
 | `scripts/check-duplicates.sh` | Check for duplicate issues by title | `scripts/check-duplicates.sh "Add category filter"` |
 | `scripts/roadmap-status.sh` | Cross-reference roadmap items vs issues | `scripts/roadmap-status.sh --gaps-only --active-only` |
 | `scripts/project-fields.sh` | Get GitHub Project field ID mapping | `scripts/project-fields.sh` |
+| `scripts/update-board-item.sh` | Set fields on the project board for an issue | `scripts/update-board-item.sh --issue 42 --status "Todo" --priority "P1 - Must Have"` |
 | `gh` | Full GitHub CLI for actions (create, edit, comment) | `gh issue create --title "..." --label "..."` |
 
 Run any tool with `--help` to see all options.
@@ -168,6 +169,11 @@ gh issue edit N --add-label "priority/medium,type/refactor,agent/backend"
 gh issue comment N --body "Triaged: [brief explanation of priority decision]"
 ```
 
+4. **Update the project board** to reflect the triage decision:
+```bash
+scripts/update-board-item.sh --issue N --priority "P2 - Should Have" --status "Todo"
+```
+
 Process at most **3 intake issues** per run.
 
 ## Step 4: Handle PM feedback
@@ -250,7 +256,18 @@ Brief description of what needs to be built and why.
 - Patterns to follow: reference existing similar code"
 ```
 
-After creating the issue, it will be **automatically added** to the project board by the auto-add workflow (which sets Status = "Todo"). You do not need to manually run `gh project item-add`.
+After creating the issue, set its project board fields to match the roadmap draft it came from. The auto-add workflow also adds the item (idempotent), but only sets Status — you must set the remaining fields:
+
+```bash
+scripts/update-board-item.sh --issue ISSUE_NUMBER \
+  --status "Todo" \
+  --priority "P1 - Must Have" \
+  --roadmap-status "Active" \
+  --goal "GOAL_VALUE" \
+  --phase "PHASE_VALUE"
+```
+
+Substitute the actual Priority, Goal, Phase, and Roadmap Status values from the roadmap draft item.
 
 If the issue was created from a **roadmap draft item**, archive the draft so the board doesn't have duplicate entries:
 
@@ -313,5 +330,5 @@ Report in your summary whether you triggered a UX review and why (or why not).
 - **Don't create issues for "Deferred" roadmap items.**
 - **Scope each issue to one domain** (backend OR frontend, not both) when possible.
 - **Don't override the PM's strategic decisions.** The roadmap is set by the PM. You prioritize the work, not the vision.
-- **New issues are auto-added to the project board.** A workflow handles this automatically. If an issue was created from a roadmap draft, archive the draft to avoid duplicates.
+- **Always set board fields on new issues.** Use `scripts/update-board-item.sh` after creating or triaging issues. The auto-add workflow sets Status="Todo" as a safety net, but you must set Priority, Roadmap Status, Goal, and Phase for roadmap issues.
 - **Archive roadmap drafts after creating real issues.** Use `gh project item-archive` to remove the draft once the real issue replaces it on the board.

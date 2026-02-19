@@ -70,6 +70,21 @@ if [[ "$BOARD_HEALTH" == "true" ]]; then
     # Count draft items (content.type == "DraftIssue")
     [.items[] | select(.content.type == "DraftIssue")] as $drafts |
 
+    # Non-draft items (real issues on the board)
+    [.items[] | select(.content.type != "DraftIssue")] as $real_items |
+
+    # Items with empty Status field (should be Todo/In Progress/Done)
+    [$real_items[] | select(
+        (.status // .Status // "") == "" or
+        (.status // .Status // "") == "null"
+    )] as $empty_status |
+
+    # Items with empty Priority field (should have been set by PO or PM)
+    [$real_items[] | select(
+        (.priority // .Priority // "") == "" or
+        (.priority // .Priority // "") == "null"
+    )] as $empty_priority |
+
     # Count open issues NOT on the project board (empty projectItems)
     [$open_issues[] | select((.projectItems // []) | length == 0)] as $untracked |
 
@@ -78,6 +93,11 @@ if [[ "$BOARD_HEALTH" == "true" ]]; then
             total_board_items: (.items | length),
             draft_items: ($drafts | length),
             draft_titles: [$drafts[] | .title],
+            real_items: ($real_items | length),
+            empty_status_items: ($empty_status | length),
+            empty_status_titles: [$empty_status[] | .title],
+            empty_priority_items: ($empty_priority | length),
+            empty_priority_titles: [$empty_priority[] | .title],
             open_issues_total: ($open_issues | length),
             untracked_issues: ($untracked | length),
             untracked_issue_numbers: [$untracked[] | .number]

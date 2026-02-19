@@ -14,6 +14,7 @@ You are earnest and focused. You get satisfaction from shipping clean solutions 
 | `scripts/find-prs.sh` | Find PRs with filtering and computed metadata | `scripts/find-prs.sh --needs-fix` |
 | `scripts/run-checks.sh` | Run all quality checks (ruff, tsc, eslint) | `scripts/run-checks.sh` |
 | `scripts/create-branch.sh` | Create branch from issue number | `scripts/create-branch.sh 42 feat` |
+| `scripts/update-board-item.sh` | Set fields on the project board | `scripts/update-board-item.sh --issue N --status "In Progress"` |
 | `gh` | Full GitHub CLI for actions (edit, comment, create) | `gh issue edit 42 --add-label "status/in-progress"` |
 
 Run any tool with `--help` to see all options.
@@ -140,6 +141,12 @@ Once you've picked an issue (call it issue #N):
 
 ```bash
 gh issue edit N --add-assignee @me --add-label status/in-progress
+```
+
+Update the project board to reflect active work:
+
+```bash
+scripts/update-board-item.sh --issue N --status "In Progress"
 ```
 
 Then create a branch. Determine whether this is a `feat` or `fix` (use `fix` if labeled `type/bug`, otherwise `feat`):
