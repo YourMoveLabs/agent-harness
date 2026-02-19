@@ -1,16 +1,17 @@
 #!/bin/bash
 # Shared agent runner — invokes Claude CLI with a role-specific prompt.
 # Usage: ./agents/run-agent.sh <role>
-# Roles: po, engineer, reviewer, tech-lead, triage, ux, pm, sre
+# Roles: product-owner, product-manager, engineer-alpha, reviewer-alpha, triage, tech-lead, site-reliability, etc.
 set -euo pipefail
 
 ROLE="${1:-}"
 if [ -z "$ROLE" ]; then
     echo "Usage: $0 <role>"
-    echo "Roles: po, engineer, engineer-alpha, engineer-bravo, engineer-charlie, reviewer,"
-    echo "       reviewer-alpha, reviewer-bravo, tech-lead, triage, ux, pm, sre,"
-    echo "       content-creator, product-analyst, qa-analyst, customer-ops,"
-    echo "       financial-analyst, marketing-strategist, judge, vp-human-ops"
+    echo "Roles: product-owner, engineer, engineer-alpha, engineer-bravo, engineer-charlie,"
+    echo "       reviewer, reviewer-alpha, reviewer-bravo, tech-lead, triage,"
+    echo "       user-experience, product-manager, site-reliability, content-creator, product-analyst,"
+    echo "       qa-analyst, customer-ops, financial-analyst, marketing-strategist,"
+    echo "       judge, human-ops"
     exit 1
 fi
 
@@ -62,7 +63,7 @@ APP_ID="${!APP_ID_VAR:-}"
 APP_INSTALL="${!APP_INSTALL_VAR:-}"
 APP_KEY="${!APP_KEY_VAR:-}"
 APP_USER_ID="${!APP_USER_VAR:-0}"
-APP_BOT_NAME="${!APP_BOT_VAR:-fishbowl-${ROLE}}"
+APP_BOT_NAME="${!APP_BOT_VAR:-${ROLE}}"
 
 if [ -n "$APP_ID" ] && [ -n "$APP_INSTALL" ] && [ -n "$APP_KEY" ]; then
     # shellcheck source=/dev/null
@@ -114,17 +115,17 @@ case "$ROLE" in
         # Can write conventions and lint scripts, but not application code
         ALLOWED_TOOLS="${COMMON_TOOLS},Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Write,Edit"
         ;;
-    pm)
+    product-manager)
         # Strategic agent: reads goals, manages GitHub Project roadmap via gh
         # scripts/* for project-fields.sh and roadmap-status.sh (read-only GitHub data)
         # No Glob/Grep — PM understands product through outcomes, not code
         # No Write/Edit/git — PM doesn't modify codebase files
         ALLOWED_TOOLS="Bash(gh:*),Bash(cat:*),Bash(scripts/*),Read"
         ;;
-    sre)
+    site-reliability)
         # Operational agent: monitors health, checks Azure resources, creates issues
         # scripts/* for health-check.sh, workflow-status.sh, find-issues.sh
-        # No Write/Edit — SRE doesn't modify code. It reads, monitors, and creates issues.
+        # No Write/Edit — Site Reliability doesn't modify code. It reads, monitors, and creates issues.
         ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(python3:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read"
         ;;
     content-creator)
@@ -167,12 +168,12 @@ case "$ROLE" in
         # Read-only + gh for posting resolution comments
         ALLOWED_TOOLS="${COMMON_TOOLS},Bash(scripts/*)"
         ;;
-    vp-human-ops)
+    human-ops)
         # Culture and engagement: activity feed, social posting, team morale
         # Has curl for social APIs, gh for issues/activity
         ALLOWED_TOOLS="Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep"
         ;;
-    po|reviewer|reviewer-alpha|reviewer-bravo|triage|ux)
+    product-owner|reviewer|reviewer-alpha|reviewer-bravo|triage|user-experience)
         # Read-only + GitHub CLI — no file editing
         ALLOWED_TOOLS="${COMMON_TOOLS},Bash(scripts/*)"
         ;;
@@ -203,6 +204,16 @@ if [ -f "$REFLECTION" ] && echo "$REFLECTION_ROLES" | grep -qw "$PROMPT_ROLE"; t
 
 $(cat "$REFLECTION")"
     echo "Reflection: enabled (appended to prompt)"
+fi
+
+# Knowledge base partial: eligible agents can query institutional knowledge.
+KB_PARTIAL="$HARNESS_ROOT/agents/prompts/partials/knowledge-base.md"
+KB_ROLES="pm po engineer reviewer product-analyst financial-analyst marketing-strategist tech-lead content-creator"
+if [ -f "$KB_PARTIAL" ] && echo "$KB_ROLES" | grep -qw "$PROMPT_ROLE"; then
+    PROMPT_TEXT="$PROMPT_TEXT
+
+$(cat "$KB_PARTIAL")"
+    echo "Knowledge base: enabled (appended to prompt)"
 fi
 
 claude -p "$PROMPT_TEXT" \

@@ -25,7 +25,7 @@ Run any tool with `--help` to see all options.
 Find open issues that were NOT created by an agent and have NOT been triaged yet:
 
 ```bash
-scripts/find-issues.sh --no-label "agent-created" --no-label "source/triage" --no-label "source/roadmap" --no-label "source/po" --no-label "source/tech-lead" --no-label "source/ux-review" --no-label "source/sre" --no-label "source/qa-analyst" --no-label "source/financial-analyst" --no-label "source/customer-ops" --no-label "source/marketing-strategist" --no-label "source/product-analyst" --no-label "source/judge" --no-label "source/vp-human-ops"
+scripts/find-issues.sh --no-label "agent-created" --no-label "source/triage" --no-label "source/roadmap" --no-label "source/po" --no-label "source/tech-lead" --no-label "source/ux-review" --no-label "source/site-reliability" --no-label "source/qa-analyst" --no-label "source/financial-analyst" --no-label "source/customer-ops" --no-label "source/marketing-strategist" --no-label "source/product-analyst" --no-label "source/judge" --no-label "source/human-ops"
 ```
 
 This filters out agent-created issues and any issue that already has a `source/*` label (already processed by another agent).
@@ -143,9 +143,9 @@ scripts/kb-read.sh BLOB_NAME
 
 **Approve** — The insight is durable, specific, and actionable. Choose a descriptive filename:
 ```bash
-scripts/kb-approve.sh staging/ORIGINAL_NAME.json approved/DESCRIPTIVE-NAME.json
+scripts/kb-approve.sh staging/ORIGINAL_NAME.json DESCRIPTIVE-NAME.json
 ```
-Use a filename that describes the insight's topic (e.g., `audience-prefers-practical-content.json`, `agent-review-rounds-cost-pattern.json`). You own the naming — make it clear and searchable.
+Use a filename that describes the insight's topic (e.g., `audience-prefers-practical-content.json`, `agent-review-rounds-cost-pattern.json`). The file is copied to the `org-knowledge-approved` container automatically. You own the naming — make it clear and searchable.
 
 **Reject** — The insight is generic, temporary, already known, or not actionable:
 ```bash
