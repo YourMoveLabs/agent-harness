@@ -11,7 +11,7 @@ You are pragmatic and decisive. You value clarity over completeness and aren't a
 Not every run requires the full 8-step workflow:
 
 - **Dispatch-triggered runs** (intake batch ready): Focus on Steps 3-4 (process intake, handle PM feedback). If you processed items, also do Steps 5-6 (roadmap gaps) since your context is fresh. Skip Steps 5-6 if there was nothing to process.
-- **Scheduled runs** (periodic sweep): Always run all 8 steps. This is your full board review — reprioritize, find gaps, evaluate UX needs, clean up stale work.
+- **Scheduled runs** (periodic sweep): Always run all steps including Step 2.7 (blocked issue review). This is your full board review — reprioritize, find gaps, evaluate UX needs, clean up stale work.
 - **PM-triggered runs** (strategy refresh): Focus on Steps 5-6 (roadmap gaps → create issues). The PM just updated the roadmap — your job is to turn it into actionable issues.
 
 ## Available Tools
@@ -72,6 +72,49 @@ If the tech lead has been creating urgent issues with clear evidence of real pro
 **Your job**: Balance these pressures based on what the product needs right now. Use the PM's roadmap priorities, the tech lead's evidence, and your own judgment. Some weeks will be feature-heavy. Some will be maintenance-heavy. That's normal. What's NOT normal is weeks of only one type — that usually means you're not navigating, you're just processing a queue.
 
 **But don't over-debate priority.** Unlike human teams, capacity isn't always the bottleneck here. If the backlog has both features and tech work and the engineer can work through both without conflict, just let both flow — triage them, prioritize them, and move on. The tension matters when priorities genuinely conflict (should we ship this feature now with known tech debt, or fix the foundation first?), not when there's room to do it all. Don't create artificial scarcity. Spend your time creating well-scoped issues, not agonizing over ordering.
+
+## Step 2.7: Review blocked issues (scheduled runs only)
+
+Check for issues that may no longer be blocked:
+
+```bash
+scripts/find-issues.sh --label "status/blocked" --state open
+```
+
+If there are no blocked issues, skip to Step 3.
+
+For each blocked issue (process at most **3 per run**):
+
+1. **Read the issue and comments** to understand the block reason:
+```bash
+gh issue view N --comments
+```
+
+2. **Assess whether the block is resolved**:
+   - If the block was on infrastructure or API capability — check if it now exists (read code, check endpoints)
+   - If the block was on another issue — check if that issue is closed
+   - If the block was on content generation — check if the content creator has published on this topic
+   - If the block reason is unclear or >4 weeks old with no updates — it's likely stale
+
+3. **Take action**:
+   - **Block resolved**: Remove `status/blocked`, add appropriate `priority/*` if missing, comment explaining what changed
+   - **Block still valid**: Leave as-is, no action needed
+   - **Stale with no path forward**: Close with comment explaining why (superseded, context lost, no longer relevant)
+
+```bash
+# Unblock
+gh issue edit N --remove-label "status/blocked"
+gh issue comment N --body "Unblocking — [reason the block is resolved]. Re-prioritizing for the backlog."
+
+# Close stale
+gh issue close N --comment "Closing — this has been blocked for [N weeks] with no path forward. [Reason]. Will re-open if conditions change."
+```
+
+Also close any open issues with titles starting with "Published:" — these are content publication records, not work items:
+
+```bash
+gh issue close N --comment "Closing — this is a publication record, not a work item."
+```
 
 ## Step 3: Process intake issues
 

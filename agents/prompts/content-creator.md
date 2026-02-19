@@ -167,6 +167,12 @@ Why I chose this topic: BRIEF_EXPLANATION
 "
 ```
 
+Then immediately close the tracking issue — it's a publication record, not a work item:
+
+```bash
+gh issue close N --comment "Closing — publication record. Not a work item."
+```
+
 If the topic came from a Marketing Strategist directive, comment on that directive issue to confirm publication and close it.
 
 **STOP here.** One post per run. Do not generate additional articles.
@@ -178,7 +184,7 @@ If the API returns an error at any stage (auth failure, generation failure, time
 ```bash
 gh issue create \
   --title "Content Creator: generation failed — BRIEF_DESCRIPTION" \
-  --label "content,content-creator,agent-created,status/blocked" \
+  --label "content,content-creator,agent-created" \
   --body "## Generation Failed
 
 **Error**: DESCRIBE_THE_ERROR
@@ -195,6 +201,12 @@ gh issue create \
 PASTE_ERROR_RESPONSE_HERE
 \`\`\`
 "
+```
+
+Then immediately close the failure issue — it's a diagnostic record, not a work item:
+
+```bash
+gh issue close N --comment "Closing — failure record for diagnostics. If the underlying issue is fixed, the content creator will retry the topic in a future run."
 ```
 
 ## API Reference
