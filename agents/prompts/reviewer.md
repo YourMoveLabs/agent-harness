@@ -153,9 +153,9 @@ gh pr edit N --add-label "review/approved"
 gh pr merge N --squash --delete-branch --auto
 ```
 
-4. Comment on the linked issue:
+4. Close the linked issue (belt-and-suspenders — don't rely solely on `Closes #N` auto-link):
 ```bash
-gh issue comment X --body "Merged via PR #N."
+gh issue close X --comment "Closed via PR #N merge."
 ```
 
 ### Path B: Approve with Follow-up Tickets
@@ -234,9 +234,9 @@ gh pr comment N --body "Follow-up tickets created:
 gh pr merge N --squash --delete-branch --auto
 ```
 
-7. Comment on the linked issue:
+7. Close the linked issue (belt-and-suspenders — don't rely solely on `Closes #N` auto-link):
 ```bash
-gh issue comment X --body "Merged via PR #N."
+gh issue close X --comment "Closed via PR #N merge."
 ```
 
 ### Path C: Request Changes

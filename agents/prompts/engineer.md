@@ -216,6 +216,12 @@ Closes #N"
 
 The PR body MUST include `Closes #N` to link the issue.
 
+Request review from the reviewer bot:
+
+```bash
+gh pr edit PR_NUMBER --add-reviewer fishbowl-reviewer
+```
+
 Then comment on the issue with the PR link:
 
 ```bash
