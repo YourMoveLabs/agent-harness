@@ -110,6 +110,25 @@ gh issue comment N --body "Unblocking — [reason the block is resolved]. Re-pri
 gh issue close N --comment "Closing — this has been blocked for [N weeks] with no path forward. [Reason]. Will re-open if conditions change."
 ```
 
+Also check for stale `status/needs-info` issues:
+
+```bash
+scripts/find-issues.sh --label "status/needs-info" --state open
+```
+
+For each (process at most **2 per run**):
+- If the human has responded (new comments since the triage comment), remove `status/needs-info` and add `source/triage` so Triage can re-process it
+- If >2 weeks with no response, close as stale:
+
+```bash
+# Human responded — send back to Triage
+gh issue edit N --remove-label "status/needs-info" --add-label "source/triage"
+gh issue comment N --body "Human responded — sending back to Triage for re-evaluation."
+
+# Stale — close
+gh issue close N --comment "Closing — no response in 2+ weeks. Reopen with the requested details if this is still relevant."
+```
+
 Also close any open issues with titles starting with "Published:" — these are content publication records, not work items:
 
 ```bash
@@ -128,6 +147,7 @@ scripts/find-issues.sh --label "source/reviewer-backlog" --no-label "priority/hi
 scripts/find-issues.sh --label "source/qa-analyst" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
 scripts/find-issues.sh --label "source/customer-ops" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
 scripts/find-issues.sh --label "source/site-reliability" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
+scripts/find-issues.sh --label "source/human-ops" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
 ```
 
 For each intake issue that doesn't yet have a `priority/*` label:
