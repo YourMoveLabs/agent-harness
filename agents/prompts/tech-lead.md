@@ -150,7 +150,16 @@ git push origin main
 
 ### B: Create issues for architectural work
 
-If you identify refactoring needs, abstraction opportunities, or dependency updates that require code changes:
+If you identify refactoring needs, abstraction opportunities, or dependency updates that require code changes.
+
+**Make your case.** The PO is balancing your requests against the PM's product roadmap — your issue needs to earn its priority. Don't just describe what's wrong; explain **what happens if we don't fix this**:
+
+- "This pattern causes test failures every time a new service is added" — urgent, say so
+- "This file is 600 lines, we should split it" — can wait, be honest about that
+- "Three PRs this week hit the same bug in this module" — urgent, show the evidence
+- "The naming convention isn't consistent" — can wait, maybe just write a standard instead
+
+The PO will read your evidence and decide. Give them what they need to make a good decision.
 
 ```bash
 gh issue create \
@@ -164,6 +173,12 @@ What's wrong or suboptimal with the current approach.
 
 - Specific files or PRs where this pattern appears
 - Reviewer feedback that this would have prevented
+
+## Risk
+
+What happens if this isn't addressed? Is this causing active problems (failing
+tests, blocking features, recurring bugs) or is it preventive maintenance?
+Be honest — the PO uses this to prioritize against product work.
 
 ## Proposed Solution
 
