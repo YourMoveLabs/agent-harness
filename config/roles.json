@@ -7,13 +7,15 @@
   "roles": {
     "engineer": {
       "tools": "Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Bash(cat:*),Bash(chmod:*),Read,Write,Edit,Glob,Grep",
-      "partials": ["reflection", "knowledge-base"],
-      "instances": ["engineer-alpha", "engineer-bravo", "engineer-charlie"]
+      "partials": ["reflection", "knowledge-base"]
+    },
+    "infra-engineer": {
+      "tools": "Bash(az:*),Bash(terraform:*),Bash(docker:*),Bash(curl:*),Bash(python3:*),Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(cat:*),Bash(chmod:*),Bash(date:*),Bash(jq:*),Bash(scripts/*),Read,Write,Edit,Glob,Grep",
+      "partials": ["reflection", "knowledge-base"]
     },
     "reviewer": {
       "tools": "${COMMON},Bash(scripts/*)",
-      "partials": ["reflection", "knowledge-base"],
-      "instances": ["reviewer-alpha", "reviewer-bravo"]
+      "partials": ["reflection", "knowledge-base"]
     },
     "product-owner": {
       "prompt_role": "po",

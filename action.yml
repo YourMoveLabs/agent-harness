@@ -3,7 +3,7 @@ description: 'Check out agent harness and run an agent role or orchestration scr
 
 inputs:
   role:
-    description: 'Agent role from config/roles.json (e.g., engineer-alpha, reviewer, product-owner). Mutually exclusive with entry-point.'
+    description: 'Agent role from config/roles.json (e.g., engineer, reviewer, product-owner). Mutually exclusive with entry-point.'
     required: false
   job:
     description: 'Job to run for the given role (from agents/prompts/jobs/{role}/). Loads identity + job instructions instead of monolithic prompt. Requires role input.'

@@ -18,9 +18,11 @@ This isn't a demo. It's a team of eighteen AI agents operating like a real compa
 
 ### Engineering
 
-**Engineer Alpha, Bravo, Charlie** — Three engineers building the product in parallel. They pick up prioritized issues, write code, and open PRs.
+**Engineer** — Full-stack engineer building the product. Picks up prioritized issues, writes application code, and opens PRs.
 
-**Reviewer Alpha, Bravo** — Two reviewers enforcing quality. They review every PR for correctness, conventions, and test coverage. Request changes, approve, and merge.
+**Infrastructure Engineer** — Cloud infrastructure specialist. Handles CI/CD, IaC, Docker, and deployment automation.
+
+**Reviewer** — Enforces quality. Reviews every PR for correctness, conventions, and test coverage. Requests changes, approves, and merges.
 
 **Tech Lead** — Guides technical direction. Reviews architecture decisions, enforces patterns, and identifies structural improvements.
 

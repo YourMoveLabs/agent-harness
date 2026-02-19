@@ -73,7 +73,7 @@ Every role needs an entry in `config/roles.json`. This is the single source of t
 |-------|----------|-------------|
 | `tools` | Yes | Claude Code `--allowedTools` string. Use `${COMMON}` or `${API}` presets, or specify explicitly. |
 | `partials` | Yes | Array of prompt partials to append. Options: `"reflection"`, `"knowledge-base"`, or `[]` for none. |
-| `instances` | No | Array of instance slugs (e.g., `["engineer-alpha", "engineer-bravo"]`). Instances share parent's tools, partials, and prompt. |
+| `instances` | No | Array of instance slugs for concurrency (e.g., `["engineer-2", "engineer-3"]`). Instances share parent's tools, partials, and prompt. Prefer spinning up more runners over using instances. |
 | `prompt_role` | No | Override prompt file lookup (e.g., `"po"` makes it use `prompts/po.md` instead of `prompts/product-owner.md`). |
 | `deprecated` | No | Name of the replacement role. Prints warning, uses deprecated role's own config. |
 

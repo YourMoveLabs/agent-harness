@@ -170,11 +170,12 @@ These agents handle cross-cutting concerns that don't belong to any single domai
 
 Decisions made during the build-out planning session:
 
-### Multi-Instance Naming
-- Engineers: **Engineer Alpha**, **Engineer Bravo**, **Engineer Charlie** (NATO alphabet)
-- Reviewers: **Reviewer Alpha**, **Reviewer Bravo**
-- Each instance gets its own GitHub App identity but shares a single prompt file
-- `PROMPT_ROLE` env var in `run-agent.sh` maps instance slug → shared prompt
+### Specialized Engineering Roles (replaces multi-instance model)
+- **Engineer** — Full-stack application code
+- **Infrastructure Engineer** — Cloud resources, CI/CD, IaC, deployment
+- **Reviewer** — Code review and quality gate
+- Concurrency comes from spinning up more runners, not duplicating workflows
+- The old multi-instance model (Alpha/Bravo/Charlie) was removed in favor of role specialization
 
 ### Triage Agent
 - **Keep online** for now — fold into PO in a later phase
