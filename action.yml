@@ -5,6 +5,9 @@ inputs:
   role:
     description: 'Agent role from config/roles.json (e.g., engineer-alpha, reviewer, product-owner). Mutually exclusive with entry-point.'
     required: false
+  job:
+    description: 'Job to run for the given role (from agents/prompts/jobs/{role}/). Loads identity + job instructions instead of monolithic prompt. Requires role input.'
+    required: false
   entry-point:
     description: 'Script to run relative to harness root (e.g., scripts/run-site-reliability.sh). Mutually exclusive with role.'
     required: false
@@ -83,7 +86,11 @@ runs:
         if [ -n "${{ inputs.role }}" ]; then
           # Direct role invocation — no wrapper script needed
           chmod +x ".harness/agents/run-agent.sh"
-          ".harness/agents/run-agent.sh" "${{ inputs.role }}"
+          JOB_ARG=""
+          if [ -n "${{ inputs.job }}" ]; then
+            JOB_ARG="--job ${{ inputs.job }}"
+          fi
+          ".harness/agents/run-agent.sh" "${{ inputs.role }}" $JOB_ARG
         elif [ -n "${{ inputs.entry-point }}" ]; then
           # Orchestration script invocation
           chmod +x ".harness/${{ inputs.entry-point }}"

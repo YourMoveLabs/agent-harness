@@ -1,10 +1,19 @@
 #!/bin/bash
 # Shared agent runner — invokes Claude CLI with a role-specific prompt.
-# Usage: ./agents/run-agent.sh <role>
+# Usage: ./agents/run-agent.sh <role> [--job <job-name>]
 # Role configuration lives in config/roles.json.
+# Identity + Job prompts live in agents/prompts/identities/ and agents/prompts/jobs/.
 set -euo pipefail
 
 ROLE="${1:-}"
+JOB=""
+shift 2>/dev/null || true
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --job) JOB="${2:-}"; shift 2 ;;
+        *) echo "ERROR: Unknown argument: $1"; exit 1 ;;
+    esac
+done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HARNESS_ROOT="${HARNESS_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 CONFIG_FILE="$HARNESS_ROOT/config/roles.json"
@@ -57,7 +66,8 @@ PROMPT_FILE="$HARNESS_ROOT/agents/prompts/${PROMPT_ROLE}.md"
 LOG_DIR="${AGENT_LOG_DIR:-/tmp/agent-logs}"
 LOG_FILE="$LOG_DIR/${ROLE}-$(date +%Y%m%d-%H%M%S).log"
 
-if [ ! -f "$PROMPT_FILE" ]; then
+# Validate prompt file exists (only needed for legacy non-job mode)
+if [ -z "$JOB" ] && [ ! -f "$PROMPT_FILE" ]; then
     echo "ERROR: Prompt file not found: $PROMPT_FILE"
     echo "Available prompts:"
     ls "$HARNESS_ROOT/agents/prompts/"*.md 2>/dev/null | xargs -I {} basename {} .md
@@ -121,8 +131,13 @@ else
 fi
 
 echo ""
-echo "=== Agent: ${ROLE} ==="
-echo "Prompt: $PROMPT_FILE"
+echo "=== Agent: ${ROLE}${JOB:+ (job: $JOB)} ==="
+if [ -n "$JOB" ]; then
+    echo "Identity: $HARNESS_ROOT/agents/prompts/identities/${PROMPT_ROLE}.md"
+    echo "Job: $HARNESS_ROOT/agents/prompts/jobs/${PROMPT_ROLE}/${JOB}.md"
+else
+    echo "Prompt: $PROMPT_FILE"
+fi
 echo "Log: $LOG_FILE"
 echo "Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo ""
@@ -156,8 +171,36 @@ RAW_OUTPUT="$LOG_DIR/raw-output.json"
 USAGE_FILE="$LOG_DIR/${ROLE}-$(date +%Y%m%d-%H%M%S)-usage.json"
 
 # --- Prompt assembly ---
-# Start with the role-specific prompt, then append partials from config.
-PROMPT_TEXT="$(cat "$PROMPT_FILE")"
+# If --job is specified: identity + job instructions + partials
+# If no --job: legacy monolithic prompt + partials (backward compatible)
+if [ -n "$JOB" ]; then
+    IDENTITY_FILE="$HARNESS_ROOT/agents/prompts/identities/${PROMPT_ROLE}.md"
+    JOB_FILE="$HARNESS_ROOT/agents/prompts/jobs/${PROMPT_ROLE}/${JOB}.md"
+
+    if [ ! -f "$IDENTITY_FILE" ]; then
+        echo "ERROR: Identity file not found: $IDENTITY_FILE"
+        echo "Available identities:"
+        ls "$HARNESS_ROOT/agents/prompts/identities/"*.md 2>/dev/null | xargs -I {} basename {} .md || echo "  (none)"
+        exit 1
+    fi
+    if [ ! -f "$JOB_FILE" ]; then
+        echo "ERROR: Job file not found: $JOB_FILE"
+        echo "Available jobs for ${PROMPT_ROLE}:"
+        ls "$HARNESS_ROOT/agents/prompts/jobs/${PROMPT_ROLE}/"*.md 2>/dev/null | xargs -I {} basename {} .md || echo "  (none)"
+        exit 1
+    fi
+
+    PROMPT_TEXT="$(cat "$IDENTITY_FILE")
+
+---
+
+## Current Job: ${JOB}
+
+$(cat "$JOB_FILE")"
+    echo "Job: ${JOB}"
+else
+    PROMPT_TEXT="$(cat "$PROMPT_FILE")"
+fi
 
 # Append eligible partials (reflection, knowledge-base, etc.) from config.
 PARTIALS=$(echo "$ROLE_CONFIG" | jq -r '.config.partials[]?' 2>/dev/null || true)
@@ -187,6 +230,7 @@ if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then
     # Extract usage metadata into a separate JSON file
     jq '{
       role: $role,
+      job: $job,
       total_cost_usd: .total_cost_usd,
       duration_ms: .duration_ms,
       duration_api_ms: .duration_api_ms,
@@ -197,6 +241,7 @@ if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then
       timestamp: $ts
     }' \
       --arg role "$ROLE" \
+      --arg job "${JOB:-}" \
       --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       "$RAW_OUTPUT" > "$USAGE_FILE"
 
