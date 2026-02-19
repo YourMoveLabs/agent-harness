@@ -1,34 +1,65 @@
 #!/bin/bash
 # Shared agent runner — invokes Claude CLI with a role-specific prompt.
 # Usage: ./agents/run-agent.sh <role>
-# Roles: product-owner, product-manager, engineer-alpha, reviewer-alpha, triage, tech-lead, site-reliability, etc.
+# Role configuration lives in config/roles.json.
 set -euo pipefail
 
 ROLE="${1:-}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HARNESS_ROOT="${HARNESS_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+CONFIG_FILE="$HARNESS_ROOT/config/roles.json"
+
 if [ -z "$ROLE" ]; then
     echo "Usage: $0 <role>"
-    echo "Roles: product-owner, engineer, engineer-alpha, engineer-bravo, engineer-charlie,"
-    echo "       reviewer, reviewer-alpha, reviewer-bravo, tech-lead, triage,"
-    echo "       user-experience, product-manager, site-reliability, content-creator, product-analyst,"
-    echo "       qa-analyst, customer-ops, financial-analyst, marketing-strategist,"
-    echo "       judge, human-ops"
+    echo "Available roles:"
+    jq -r '[.roles | keys[], (.roles | to_entries[] | select(.value | has("instances")) | .value.instances[])] | sort | .[]' "$CONFIG_FILE"
     exit 1
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HARNESS_ROOT="${HARNESS_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
-PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
+# --- Role resolution from config/roles.json ---
+# 1. Direct match in .roles
+# 2. Instance match (e.g., engineer-alpha → engineer)
+# 3. Not found → error
+ROLE_CONFIG=$(jq -c --arg r "$ROLE" '
+    if .roles[$r] then
+        { parent: $r, config: .roles[$r] }
+    else
+        .roles | to_entries[]
+            | select(.value | has("instances"))
+            | select(.value.instances | index($r))
+            | { parent: .key, config: .value }
+    end // empty
+' "$CONFIG_FILE")
 
-# PROMPT_ROLE allows multi-instance agents to share a prompt.
-# e.g., engineer-alpha uses PROMPT_ROLE=engineer → agents/prompts/engineer.md
-PROMPT_ROLE="${PROMPT_ROLE:-$ROLE}"
+if [ -z "$ROLE_CONFIG" ]; then
+    echo "ERROR: Unknown role '$ROLE'"
+    echo "Available roles:"
+    jq -r '[.roles | keys[], (.roles | to_entries[] | select(.value | has("instances")) | .value.instances[])] | sort | .[]' "$CONFIG_FILE"
+    exit 1
+fi
+
+PARENT_ROLE=$(echo "$ROLE_CONFIG" | jq -r '.parent')
+
+# Check for deprecated roles
+DEPRECATED=$(echo "$ROLE_CONFIG" | jq -r '.config.deprecated // empty')
+if [ -n "$DEPRECATED" ]; then
+    echo "WARNING: Role '$ROLE' is deprecated — use '$DEPRECATED' instead"
+fi
+
+# Resolve prompt role: config.prompt_role > parent role name (for instances) > role name
+PROMPT_ROLE=$(echo "$ROLE_CONFIG" | jq -r '.config.prompt_role // empty')
+if [ -z "$PROMPT_ROLE" ]; then
+    PROMPT_ROLE="$PARENT_ROLE"
+fi
+
+PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
 PROMPT_FILE="$HARNESS_ROOT/agents/prompts/${PROMPT_ROLE}.md"
 LOG_DIR="${AGENT_LOG_DIR:-/tmp/agent-logs}"
 LOG_FILE="$LOG_DIR/${ROLE}-$(date +%Y%m%d-%H%M%S).log"
 
 if [ ! -f "$PROMPT_FILE" ]; then
     echo "ERROR: Prompt file not found: $PROMPT_FILE"
-    echo "Available roles:"
+    echo "Available prompts:"
     ls "$HARNESS_ROOT/agents/prompts/"*.md 2>/dev/null | xargs -I {} basename {} .md
     exit 1
 fi
@@ -101,87 +132,20 @@ cd "$PROJECT_ROOT"
 # Use project-level git hooks (pre-commit auto-formats Python)
 git config core.hooksPath .githooks
 
-# --- Per-role tool allowlists ---
-# Different roles get different tool permissions to prevent scope creep.
-# Non-code agents lose Write/Edit to ensure they can't modify application code.
-COMMON_TOOLS="Bash(gh:*),Bash(git:*),Bash(cat:*),Read,Glob,Grep"
+# --- Tool allowlist from config ---
+# Expand ${COMMON} and ${API} presets, then set ALLOWED_TOOLS.
+ALLOWED_TOOLS=$(jq -r --arg r "$ROLE" '
+    ._tool_presets as $presets |
+    (if .roles[$r] then .roles[$r] else .roles | to_entries[] | select(.value | has("instances")) | select(.value.instances | index($r)) | .value end) |
+    .tools |
+    gsub("\\$\\{COMMON\\}"; $presets.COMMON) |
+    gsub("\\$\\{API\\}"; $presets.API)
+' "$CONFIG_FILE")
 
-case "$ROLE" in
-    engineer|engineer-alpha|engineer-bravo|engineer-charlie)
-        # Full access — implements code changes
-        ALLOWED_TOOLS="Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Bash(cat:*),Bash(chmod:*),Read,Write,Edit,Glob,Grep"
-        ;;
-    tech-lead)
-        # Can write conventions and lint scripts, but not application code
-        ALLOWED_TOOLS="${COMMON_TOOLS},Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Write,Edit"
-        ;;
-    product-manager)
-        # Strategic agent: reads goals, manages GitHub Project roadmap via gh
-        # scripts/* for project-fields.sh and roadmap-status.sh (read-only GitHub data)
-        # No Glob/Grep — PM understands product through outcomes, not code
-        # No Write/Edit/git — PM doesn't modify codebase files
-        ALLOWED_TOOLS="Bash(gh:*),Bash(cat:*),Bash(scripts/*),Read"
-        ;;
-    site-reliability)
-        # Operational agent: monitors health, checks Azure resources, creates issues
-        # scripts/* for health-check.sh, workflow-status.sh, find-issues.sh
-        # No Write/Edit — Site Reliability doesn't modify code. It reads, monitors, and creates issues.
-        ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(python3:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read"
-        ;;
-    content-creator)
-        # Content generation: calls blog API, manages blob storage, tracks via gh
-        # Replaces 'writer' — takes direction from Marketing Strategist
-        # No Write/Edit — content creator doesn't modify app code
-        ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(sleep:*),Bash(echo:*),Bash(scripts/*),Read,Glob,Grep"
-        ;;
-    writer)
-        # DEPRECATED: Use content-creator. Kept for backwards compatibility during transition.
-        ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(sleep:*),Bash(echo:*),Bash(scripts/*),Read,Glob,Grep"
-        ;;
-    product-analyst)
-        # Market research + Stripe API + blob storage + GitHub issues
-        # Shapes product offering, pricing, conversion experiments
-        ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep"
-        ;;
-    financial-analyst)
-        # Revenue tracking + Stripe API + cost analysis + blob storage
-        # Tracks revenue vs costs, P&L, churn, dunning, margin analysis
-        ALLOWED_TOOLS="Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep"
-        ;;
-    qa-analyst)
-        # Quality verification: API checks, data accuracy, live site validation
-        # No Write/Edit — QA identifies problems, doesn't fix them
-        ALLOWED_TOOLS="Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep"
-        ;;
-    customer-ops)
-        # Customer support: email, Stripe (limited), issue routing
-        # Has curl for email APIs and limited Stripe actions (refunds)
-        ALLOWED_TOOLS="Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep"
-        ;;
-    marketing-strategist)
-        # Content strategy: analytics, SEO, performance data → directives
-        # Has curl for analytics APIs, no Write/Edit
-        ALLOWED_TOOLS="Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep"
-        ;;
-    judge)
-        # Conflict resolution: reads dispute threads, makes binding calls
-        # Read-only + gh for posting resolution comments
-        ALLOWED_TOOLS="${COMMON_TOOLS},Bash(scripts/*)"
-        ;;
-    human-ops)
-        # Culture and engagement: activity feed, social posting, team morale
-        # Has curl for social APIs, gh for issues/activity
-        ALLOWED_TOOLS="Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep"
-        ;;
-    product-owner|reviewer|reviewer-alpha|reviewer-bravo|triage|user-experience)
-        # Read-only + GitHub CLI — no file editing
-        ALLOWED_TOOLS="${COMMON_TOOLS},Bash(scripts/*)"
-        ;;
-    *)
-        # Fallback: read-only + GitHub CLI
-        ALLOWED_TOOLS="${COMMON_TOOLS}"
-        ;;
-esac
+if [ -z "$ALLOWED_TOOLS" ]; then
+    echo "ERROR: Could not resolve tools for role '$ROLE'"
+    exit 1
+fi
 
 echo "Tools: ${ROLE} allowlist"
 
@@ -192,29 +156,22 @@ RAW_OUTPUT="$LOG_DIR/raw-output.json"
 USAGE_FILE="$LOG_DIR/${ROLE}-$(date +%Y%m%d-%H%M%S)-usage.json"
 
 # --- Prompt assembly ---
-# Start with the role-specific prompt, then append shared partials for eligible roles.
+# Start with the role-specific prompt, then append partials from config.
 PROMPT_TEXT="$(cat "$PROMPT_FILE")"
 
-# Reflection partial: eligible agents get a "reflect on durable insights" step appended.
-# Agents not listed here either have curation responsibility (triage) or are too narrow/operational.
-REFLECTION="$HARNESS_ROOT/agents/prompts/partials/reflection.md"
-REFLECTION_ROLES="pm po engineer reviewer product-analyst financial-analyst marketing-strategist tech-lead"
-if [ -f "$REFLECTION" ] && echo "$REFLECTION_ROLES" | grep -qw "$PROMPT_ROLE"; then
-    PROMPT_TEXT="$PROMPT_TEXT
+# Append eligible partials (reflection, knowledge-base, etc.) from config.
+PARTIALS=$(echo "$ROLE_CONFIG" | jq -r '.config.partials[]?' 2>/dev/null || true)
+for partial in $PARTIALS; do
+    PARTIAL_FILE="$HARNESS_ROOT/agents/prompts/partials/${partial}.md"
+    if [ -f "$PARTIAL_FILE" ]; then
+        PROMPT_TEXT="$PROMPT_TEXT
 
-$(cat "$REFLECTION")"
-    echo "Reflection: enabled (appended to prompt)"
-fi
-
-# Knowledge base partial: eligible agents can query institutional knowledge.
-KB_PARTIAL="$HARNESS_ROOT/agents/prompts/partials/knowledge-base.md"
-KB_ROLES="pm po engineer reviewer product-analyst financial-analyst marketing-strategist tech-lead content-creator"
-if [ -f "$KB_PARTIAL" ] && echo "$KB_ROLES" | grep -qw "$PROMPT_ROLE"; then
-    PROMPT_TEXT="$PROMPT_TEXT
-
-$(cat "$KB_PARTIAL")"
-    echo "Knowledge base: enabled (appended to prompt)"
-fi
+$(cat "$PARTIAL_FILE")"
+        echo "Partial: ${partial} (appended to prompt)"
+    else
+        echo "WARNING: Partial file not found: $PARTIAL_FILE"
+    fi
+done
 
 claude -p "$PROMPT_TEXT" \
     --allowedTools "$ALLOWED_TOOLS" \

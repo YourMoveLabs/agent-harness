@@ -43,7 +43,7 @@ ensure_label "source/tech-lead"        "d4c5f9" "From tech lead code review"
 ensure_label "source/ux-review"        "f9d0c4" "From UX agent review"
 ensure_label "source/triage"           "c2e0c6" "Validated by triage agent"
 ensure_label "source/reviewer-backlog" "fef2c0" "Rework from closed PR"
-ensure_label "source/sre"              "d73a4a" "From SRE monitoring"
+ensure_label "source/site-reliability"  "d73a4a" "From Site Reliability monitoring"
 
 # Status labels
 ensure_label "status/in-progress" "fef2c0" "An agent is working on this"

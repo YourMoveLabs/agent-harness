@@ -13,7 +13,7 @@ agents/
   prompts/{role}.md     # Generic role prompts (read CLAUDE.md for project context)
 scripts/
   dispatch-agent.sh     # Cross-agent orchestration (repository_dispatch)
-  run-sre.sh            # SRE controller (playbook routing + Claude escalation)
+  run-site-reliability.sh # Site Reliability controller (playbook routing + Claude escalation)
   run-scans.sh          # Tech Lead + UX scan orchestration
   run-strategic.sh      # PM strategic review orchestration
   run-triage.sh         # Triage pre-check orchestration

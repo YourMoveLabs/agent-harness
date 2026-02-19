@@ -27,7 +27,7 @@ if [ ! -f config/objectives.md ]; then
 fi
 
 log "Running PM agent — evaluating goals and roadmap alignment"
-if "$HARNESS_ROOT/agents/pm.sh"; then
+if "$HARNESS_ROOT/agents/run-agent.sh" product-manager; then
     log "  PM agent completed successfully"
 else
     log "  PM agent exited with error"

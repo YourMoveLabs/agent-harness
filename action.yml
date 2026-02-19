@@ -2,9 +2,12 @@ name: 'Run Agent'
 description: 'Check out agent harness and run an agent role or orchestration script'
 
 inputs:
+  role:
+    description: 'Agent role from config/roles.json (e.g., engineer-alpha, reviewer, product-owner). Mutually exclusive with entry-point.'
+    required: false
   entry-point:
-    description: 'Script to run relative to harness root (e.g., agents/engineer.sh, scripts/run-site-reliability.sh)'
-    required: true
+    description: 'Script to run relative to harness root (e.g., scripts/run-site-reliability.sh). Mutually exclusive with role.'
+    required: false
   harness-ref:
     description: 'Git ref for harness repo checkout'
     default: 'main'
@@ -45,6 +48,17 @@ runs:
       shell: bash
       run: rm -rf /tmp/agent-logs && mkdir -p /tmp/agent-logs
 
+    - name: Chain depth guard
+      shell: bash
+      run: |
+        DEPTH="${AGENT_CHAIN_DEPTH:-0}"
+        echo "Chain depth: $DEPTH"
+        if [ "$DEPTH" -ge 5 ]; then
+          echo "::warning::Chain depth $DEPTH >= 5 — halting to prevent infinite dispatch loop"
+          echo "Chain depth limit reached — halting." >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -66,8 +80,18 @@ runs:
     - name: Run agent
       shell: bash
       run: |
-        chmod +x ".harness/${{ inputs.entry-point }}"
-        ".harness/${{ inputs.entry-point }}"
+        if [ -n "${{ inputs.role }}" ]; then
+          # Direct role invocation — no wrapper script needed
+          chmod +x ".harness/agents/run-agent.sh"
+          ".harness/agents/run-agent.sh" "${{ inputs.role }}"
+        elif [ -n "${{ inputs.entry-point }}" ]; then
+          # Orchestration script invocation
+          chmod +x ".harness/${{ inputs.entry-point }}"
+          ".harness/${{ inputs.entry-point }}"
+        else
+          echo "ERROR: Either 'role' or 'entry-point' input is required"
+          exit 1
+        fi
 
     - name: Post usage summary
       if: always()
@@ -137,6 +161,17 @@ runs:
           echo '</details>' >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
         done
+
+    - name: Workspace cleanup
+      if: always()
+      shell: bash
+      run: |
+        git gc --auto --quiet 2>/dev/null || true
+        git worktree prune 2>/dev/null || true
+        NPM_SIZE=$(du -sm ~/.npm 2>/dev/null | cut -f1)
+        if [ "${NPM_SIZE:-0}" -gt 500 ]; then
+          npm cache clean --force 2>/dev/null || true
+        fi
 
     - name: Upload usage to blob
       if: always()

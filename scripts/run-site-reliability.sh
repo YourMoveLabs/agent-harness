@@ -1,5 +1,5 @@
 #!/bin/bash
-# SRE controller: routes alerts and health checks to playbooks or Claude agent.
+# Site Reliability controller: routes alerts and health checks to playbooks or Claude agent.
 #
 # Modes (set via SRE_MODE env var):
 #   alert   — Triggered by Azure Monitor via repository_dispatch.
@@ -10,9 +10,9 @@
 #             Exits early if everything is GREEN.
 #
 # Usage:
-#   SRE_MODE=alert ALERT_CONTEXT='{"alertRule":"5xx",...}' ./scripts/run-sre.sh
-#   SRE_MODE=summary ./scripts/run-sre.sh
-#   ./scripts/run-sre.sh   # defaults to summary
+#   SRE_MODE=alert ALERT_CONTEXT='{"alertRule":"5xx",...}' ./scripts/run-site-reliability.sh
+#   SRE_MODE=summary ./scripts/run-site-reliability.sh
+#   ./scripts/run-site-reliability.sh   # defaults to summary
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -24,7 +24,7 @@ MODE="${SRE_MODE:-summary}"
 ALERT="${ALERT_CONTEXT:-}"
 if [[ -z "$ALERT" ]]; then ALERT="{}"; fi
 
-log() { echo "[sre $(date -u +%H:%M:%S)] $*"; }
+log() { echo "[site-reliability $(date -u +%H:%M:%S)] $*"; }
 
 # --- Playbook routing (health-check based) ---
 # Matches health-check.sh JSON output to a playbook script.
@@ -95,18 +95,18 @@ try_playbook_for_alert() {
 }
 
 # --- Claude escalation ---
-# Invokes the full SRE agent for investigation.
+# Invokes the full Site Reliability agent for investigation.
 run_claude() {
-    log "Escalating to Claude SRE agent"
-    if "$HARNESS_ROOT/agents/sre.sh"; then
-        log "Claude SRE agent completed successfully"
+    log "Escalating to Claude Site Reliability agent"
+    if "$HARNESS_ROOT/agents/run-agent.sh" site-reliability; then
+        log "Claude Site Reliability agent completed successfully"
     else
-        log "Claude SRE agent exited with error (exit: $?)"
+        log "Claude Site Reliability agent exited with error (exit: $?)"
     fi
 }
 
 # --- Main ---
-log "=== SRE Controller (mode: $MODE) ==="
+log "=== Site Reliability Controller (mode: $MODE) ==="
 echo ""
 
 case "$MODE" in
@@ -149,4 +149,4 @@ case "$MODE" in
 esac
 
 echo ""
-log "=== SRE controller complete ==="
+log "=== Site Reliability controller complete ==="

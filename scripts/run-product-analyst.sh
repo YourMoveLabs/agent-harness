@@ -22,7 +22,7 @@ if [ ! -f config/goals.md ]; then
 fi
 
 log "Running Product Analyst agent — market research and revenue strategy"
-if "$HARNESS_ROOT/agents/product-analyst.sh"; then
+if "$HARNESS_ROOT/agents/run-agent.sh" product-analyst; then
     log "  Product Analyst agent completed successfully"
 else
     log "  Product Analyst agent exited with error"

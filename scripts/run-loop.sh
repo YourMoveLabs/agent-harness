@@ -6,7 +6,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+HARNESS_ROOT="${HARNESS_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
 cd "$PROJECT_ROOT"
 
 MAX_REVIEW_ITERATIONS=4  # Safety valve for review loop (review → fix → review → approve)
@@ -29,7 +30,7 @@ OPEN_ISSUES=$(gh issue list --state open --json number --jq 'length')
 
 if [ "$OPEN_ISSUES" -lt 3 ]; then
     log "  Backlog has $OPEN_ISSUES open issues (< 3) — running PO agent"
-    if ./agents/po.sh; then
+    if "$HARNESS_ROOT/agents/run-agent.sh" product-owner; then
         log "  PO agent completed successfully"
     else
         log "  PO agent exited with error (non-fatal, continuing)"
@@ -50,7 +51,7 @@ UNASSIGNED=$(gh issue list --state open --json assignees \
 
 if [ "$NEEDS_FEEDBACK" -gt 0 ] || [ "$UNASSIGNED" -gt 0 ]; then
     log "Phase 2: Engineer agent (feedback PRs: $NEEDS_FEEDBACK, unassigned issues: $UNASSIGNED)"
-    if ./agents/engineer.sh; then
+    if "$HARNESS_ROOT/agents/run-agent.sh" engineer; then
         log "  Engineer completed successfully"
     else
         log "  Engineer exited with error (non-fatal, continuing)"
@@ -76,7 +77,7 @@ while [ $REVIEW_ITERATION -lt $MAX_REVIEW_ITERATIONS ]; do
     fi
 
     log "Phase 3 (review iteration $((REVIEW_ITERATION + 1))/$MAX_REVIEW_ITERATIONS): Reviewer agent ($REVIEWABLE reviewable PRs)"
-    if ./agents/reviewer.sh; then
+    if "$HARNESS_ROOT/agents/run-agent.sh" reviewer; then
         log "  Reviewer completed successfully"
     else
         log "  Reviewer exited with error (non-fatal)"
@@ -93,7 +94,7 @@ while [ $REVIEW_ITERATION -lt $MAX_REVIEW_ITERATIONS ]; do
 
     if [ "$NEEDS_FEEDBACK" -gt 0 ]; then
         log "Phase 3: Engineer fixing review feedback ($NEEDS_FEEDBACK PRs)"
-        if ./agents/engineer.sh; then
+        if "$HARNESS_ROOT/agents/run-agent.sh" engineer; then
             log "  Engineer completed successfully"
         else
             log "  Engineer exited with error (non-fatal)"

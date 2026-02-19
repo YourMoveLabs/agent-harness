@@ -1,0 +1,82 @@
+{
+  "_doc": "Central role configuration for all fishbowl agents. Used by agents/run-agent.sh.",
+  "_tool_presets": {
+    "COMMON": "Bash(gh:*),Bash(git:*),Bash(cat:*),Read,Glob,Grep",
+    "API": "Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep"
+  },
+  "roles": {
+    "engineer": {
+      "tools": "Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Bash(cat:*),Bash(chmod:*),Read,Write,Edit,Glob,Grep",
+      "partials": ["reflection", "knowledge-base"],
+      "instances": ["engineer-alpha", "engineer-bravo", "engineer-charlie"]
+    },
+    "reviewer": {
+      "tools": "${COMMON},Bash(scripts/*)",
+      "partials": ["reflection", "knowledge-base"],
+      "instances": ["reviewer-alpha", "reviewer-bravo"]
+    },
+    "product-owner": {
+      "prompt_role": "po",
+      "tools": "${COMMON},Bash(scripts/*)",
+      "partials": ["reflection", "knowledge-base"]
+    },
+    "product-manager": {
+      "prompt_role": "pm",
+      "tools": "Bash(gh:*),Bash(cat:*),Bash(scripts/*),Read",
+      "partials": ["reflection", "knowledge-base"]
+    },
+    "tech-lead": {
+      "tools": "${COMMON},Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Write,Edit",
+      "partials": ["reflection", "knowledge-base"]
+    },
+    "site-reliability": {
+      "tools": "Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(python3:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read",
+      "partials": []
+    },
+    "content-creator": {
+      "tools": "${API},Bash(sleep:*),Bash(echo:*)",
+      "partials": ["knowledge-base"]
+    },
+    "product-analyst": {
+      "tools": "${API}",
+      "partials": ["reflection", "knowledge-base"]
+    },
+    "financial-analyst": {
+      "tools": "${API}",
+      "partials": ["reflection", "knowledge-base"]
+    },
+    "marketing-strategist": {
+      "tools": "${API}",
+      "partials": ["reflection", "knowledge-base"]
+    },
+    "qa-analyst": {
+      "tools": "Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep",
+      "partials": []
+    },
+    "customer-ops": {
+      "tools": "${API}",
+      "partials": []
+    },
+    "human-ops": {
+      "tools": "${API}",
+      "partials": []
+    },
+    "escalation-lead": {
+      "tools": "${COMMON},Bash(scripts/*)",
+      "partials": []
+    },
+    "triage": {
+      "tools": "${COMMON},Bash(scripts/*)",
+      "partials": []
+    },
+    "user-experience": {
+      "tools": "${COMMON},Bash(scripts/*)",
+      "partials": []
+    },
+    "writer": {
+      "deprecated": "content-creator",
+      "tools": "${API},Bash(sleep:*),Bash(echo:*)",
+      "partials": []
+    }
+  }
+}

@@ -30,7 +30,7 @@ fi
 
 if [ "$HUMAN_ISSUES" -gt 0 ] || [ "$STAGING_COUNT" -gt 0 ]; then
     log "Found $HUMAN_ISSUES human issue(s), $STAGING_COUNT KB submission(s) — running triage agent"
-    if "$HARNESS_ROOT/agents/triage.sh"; then
+    if "$HARNESS_ROOT/agents/run-agent.sh" triage; then
         log "  Triage agent completed successfully"
     else
         log "  Triage agent exited with error"

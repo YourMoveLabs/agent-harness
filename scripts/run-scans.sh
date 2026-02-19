@@ -1,7 +1,7 @@
 #!/bin/bash
 # Scanning agents: Tech Lead code review
 # Runs daily + on-demand when reviewer dispatches (via workflow_dispatch).
-# UX review is PO-dispatched (see po.md Step 8).
+# UX review is PO-dispatched (see product-owner.md Step 8).
 #
 # Usage: ./scripts/run-scans.sh
 set -euo pipefail
@@ -18,7 +18,7 @@ echo ""
 
 # ── Tech Lead: standards + architecture ──────────────────────────────────────
 log "Tech Lead agent — reviewing standards and architecture"
-if "$HARNESS_ROOT/agents/tech-lead.sh"; then
+if "$HARNESS_ROOT/agents/run-agent.sh" tech-lead; then
     log "  Tech Lead completed successfully"
 else
     log "  Tech Lead exited with error (non-fatal)"

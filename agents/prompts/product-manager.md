@@ -79,7 +79,9 @@ From this, answer:
   but if the product isn't advancing, that's your problem to solve. Create
   Active roadmap items that generate feature work. If the foundation is
   cracking and quality is slipping, that's also your problem — acknowledge it
-  and make space for the tech lead's work on the roadmap.
+  and make space for the tech lead's work on the roadmap. But don't
+  over-correct — if the team has capacity for both features and maintenance,
+  let both flow. Only intervene when the balance is clearly off.
 
 Do NOT read source code files. You evaluate the product through outcomes (shipped features, user-facing changes), not implementation details.
 

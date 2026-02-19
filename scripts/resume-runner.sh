@@ -7,7 +7,7 @@ REPO="${1:-YourMoveLabs/agent-fishbowl}"
 
 echo "Resuming workflows for $REPO..."
 
-for wf in agent-engineer.yml agent-reviewer.yml agent-po.yml agent-scans.yml agent-ux.yml; do
+for wf in agent-engineer.yml agent-engineer-alpha.yml agent-engineer-bravo.yml agent-engineer-charlie.yml agent-reviewer.yml agent-reviewer-alpha.yml agent-reviewer-bravo.yml agent-product-owner.yml agent-scans.yml agent-user-experience.yml agent-strategic.yml agent-triage.yml agent-site-reliability.yml agent-content-creator.yml agent-product-analyst.yml agent-qa-analyst.yml agent-financial-analyst.yml agent-customer-ops.yml agent-marketing-strategist.yml agent-escalation-lead.yml agent-human-ops.yml; do
   gh workflow enable "$wf" --repo "$REPO" 2>/dev/null && echo "  Enabled $wf" || true
 done
 
