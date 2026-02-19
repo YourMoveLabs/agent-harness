@@ -3,7 +3,7 @@ description: 'Check out agent harness and run an agent role or orchestration scr
 
 inputs:
   entry-point:
-    description: 'Script to run relative to harness root (e.g., agents/engineer.sh, scripts/run-sre.sh)'
+    description: 'Script to run relative to harness root (e.g., agents/engineer.sh, scripts/run-site-reliability.sh)'
     required: true
   harness-ref:
     description: 'Git ref for harness repo checkout'
@@ -41,6 +41,10 @@ runs:
           echo "WARNING: No .env found"
         fi
 
+    - name: Clean agent logs
+      shell: bash
+      run: rm -rf /tmp/agent-logs && mkdir -p /tmp/agent-logs
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -73,7 +77,7 @@ runs:
         USAGE_FILES=$(ls "$USAGE_DIR"/*-usage.json 2>/dev/null || true)
 
         if [ -z "$USAGE_FILES" ]; then
-          echo "No usage data found (agent may not have produced JSON output)" >> "$GITHUB_STEP_SUMMARY"
+          echo "No agent invoked — nothing to report." >> "$GITHUB_STEP_SUMMARY"
           exit 0
         fi
 
