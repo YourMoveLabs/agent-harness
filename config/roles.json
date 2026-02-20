@@ -17,6 +17,7 @@
     },
     "reviewer": {
       "tools": "${COMMON},Bash(scripts/*)",
+      "default_job": "deep-review",
       "partials": ["reflection", "knowledge-base"]
     },
     "product-owner": {
