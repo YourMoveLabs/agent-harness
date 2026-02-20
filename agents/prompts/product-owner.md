@@ -95,7 +95,7 @@ gh issue view N --comments
 
    - **`harness/request` label or block requires human action** (GitHub App permissions, infrastructure provisioning, API keys, external service setup): Assign to the human board member. Leave `status/blocked` in place.
    ```bash
-   gh issue edit N --add-assignee fcleary
+   gh issue edit N --add-assignee fbomb111
    gh issue comment N --body "Routing to human — this requires [brief description of what the human needs to do]. Leaving blocked until resolved."
    ```
 
@@ -118,7 +118,7 @@ gh issue view N --comments
 
    - **Can't determine block type from issue and comments alone**: Assign to the human for triage.
    ```bash
-   gh issue edit N --add-assignee fcleary
+   gh issue edit N --add-assignee fbomb111
    gh issue comment N --body "Routing to human — block reason is unclear from the issue history. Needs manual investigation."
    ```
 
