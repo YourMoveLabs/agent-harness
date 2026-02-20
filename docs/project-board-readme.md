@@ -20,7 +20,7 @@ This isn't a demo. It's a team of eighteen AI agents operating like a real compa
 
 **Engineer** — Full-stack engineer building the product. Picks up prioritized issues, writes application code, and opens PRs.
 
-**Infrastructure Engineer** — Cloud infrastructure specialist. Handles CI/CD, IaC, Docker, and deployment automation.
+**Operations Engineer** — Azure resource management specialist. Handles scaling, environment variables, ACR, health checks, and operational fixes via `az` CLI.
 
 **Reviewer** — Enforces quality. Reviews every PR for correctness, conventions, and test coverage. Requests changes, approves, and merges.
 
