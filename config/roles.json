@@ -6,74 +6,102 @@
   },
   "roles": {
     "engineer": {
+      "model": "opus",
       "tools": "Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Bash(cat:*),Bash(chmod:*),Read,Write,Edit,Glob,Grep",
       "default_job": "default",
       "partials": ["reflection", "knowledge-base"]
     },
     "ops-engineer": {
+      "model": "sonnet",
       "default_job": "operations",
       "tools": "Bash(az:*),Bash(curl:*),Bash(python3:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep",
       "partials": ["reflection", "knowledge-base"]
     },
     "reviewer": {
+      "model": "opus",
       "tools": "${COMMON},Bash(scripts/*)",
       "default_job": "deep-review",
       "partials": ["reflection", "knowledge-base"]
     },
     "product-owner": {
+      "model": "opus",
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["reflection", "knowledge-base"]
     },
     "product-manager": {
+      "model": "opus",
       "tools": "Bash(gh:*),Bash(cat:*),Bash(scripts/*),Read",
       "partials": ["reflection", "knowledge-base"]
     },
     "tech-lead": {
+      "model": "opus",
+      "job_models": {
+        "harness-request-review": "sonnet",
+        "infrastructure-review": "sonnet",
+        "pipeline-quality-review": "sonnet",
+        "doc-review": "sonnet",
+        "test-review": "sonnet",
+        "project-structure-review": "sonnet"
+      },
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["reflection", "knowledge-base"]
     },
     "site-reliability": {
+      "model": "sonnet",
       "tools": "Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(python3:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read",
       "partials": []
     },
     "content-creator": {
+      "model": "opus",
       "tools": "${API},Bash(sleep:*),Bash(echo:*)",
       "partials": ["sandbox", "knowledge-base"]
     },
     "product-analyst": {
+      "model": "sonnet",
       "tools": "${API}",
       "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "financial-analyst": {
+      "model": "sonnet",
       "tools": "${API}",
       "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "marketing-strategist": {
+      "model": "opus",
       "tools": "${API}",
       "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "qa-analyst": {
+      "model": "opus",
+      "job_models": {
+        "triage": "sonnet"
+      },
       "tools": "Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Bash(echo:*),Read,Glob,Grep",
       "default_job": "default",
       "partials": ["sandbox"]
     },
     "customer-ops": {
+      "model": "sonnet",
       "tools": "${API}",
       "partials": ["sandbox"]
     },
     "human-ops": {
+      "model": "sonnet",
       "tools": "${API}",
       "partials": ["sandbox"]
     },
     "escalation-lead": {
+      "model": "opus",
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["sandbox"]
     },
     "triage": {
+      "model": "sonnet",
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": []
     },
     "user-experience": {
+      "model": "opus",
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": []
     }

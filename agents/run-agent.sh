@@ -66,6 +66,13 @@ if [ -z "$JOB" ]; then
     JOB=$(echo "$ROLE_CONFIG" | jq -r '.config.default_job // empty')
 fi
 
+# Resolve model: job-level override > role-level > CLI default
+if [ -n "$JOB" ]; then
+    MODEL=$(echo "$ROLE_CONFIG" | jq -r --arg j "$JOB" '.config.job_models[$j] // .config.model // empty')
+else
+    MODEL=$(echo "$ROLE_CONFIG" | jq -r '.config.model // empty')
+fi
+
 PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
 PROMPT_FILE="$HARNESS_ROOT/agents/prompts/${PROMPT_ROLE}.md"
 LOG_DIR="${AGENT_LOG_DIR:-/tmp/agent-logs}"
@@ -168,6 +175,11 @@ if [ -z "$ALLOWED_TOOLS" ]; then
 fi
 
 echo "Tools: ${ROLE} allowlist"
+if [ -n "$MODEL" ]; then
+    echo "Model: $MODEL"
+else
+    echo "Model: (CLI default)"
+fi
 
 # Run Claude in non-interactive mode with the role prompt.
 # --output-format json: returns structured JSON with result + usage metadata
@@ -221,9 +233,15 @@ $(cat "$PARTIAL_FILE")"
     fi
 done
 
+MODEL_FLAGS=()
+if [ -n "$MODEL" ]; then
+    MODEL_FLAGS+=(--model "$MODEL")
+fi
+
 claude -p "$PROMPT_TEXT" \
     --allowedTools "$ALLOWED_TOOLS" \
     --output-format json \
+    "${MODEL_FLAGS[@]}" \
     2>"$LOG_FILE.stderr" | tee "$RAW_OUTPUT"
 
 EXIT_CODE=${PIPESTATUS[0]}
@@ -236,6 +254,7 @@ if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then
     jq '{
       role: $role,
       job: $job,
+      model: $model,
       total_cost_usd: .total_cost_usd,
       duration_ms: .duration_ms,
       duration_api_ms: .duration_api_ms,
@@ -247,6 +266,7 @@ if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then
     }' \
       --arg role "$ROLE" \
       --arg job "${JOB:-}" \
+      --arg model "${MODEL:-default}" \
       --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       "$RAW_OUTPUT" > "$USAGE_FILE"
 
