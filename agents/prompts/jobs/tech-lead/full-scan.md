@@ -55,6 +55,8 @@ Read the core files and evaluate:
 
 Check dependency files (requirements.txt, pyproject.toml, package.json, etc.) for outdated or problematic packages.
 
-## Step 4: Take action
+## Output
 
-Based on what you found in Steps 1-3, write or update standards and/or create issues using the templates from your identity. Focus on the highest-impact findings — don't try to fix everything in one run.
+- Up to 2 issues for the highest-impact findings (use the issue template from your identity)
+- Zero issues is fine — if the codebase is healthy, report that and move on
+- Focus on what matters most; don't create issues for minor concerns

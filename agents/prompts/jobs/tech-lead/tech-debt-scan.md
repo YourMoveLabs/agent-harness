@@ -49,6 +49,5 @@ Review dependency files for outdated packages:
 
 ## Output
 
-- Max 2 issues for the highest-impact tech debt (use the issue template from your identity)
+- Up to 2 issues for the highest-impact tech debt; zero if the codebase is clean (use the issue template from your identity)
 - Be honest about urgency — most tech debt can wait. Flag it only when it's actively causing friction or will compound.
-- Updated conventions if you identify a pattern that should be enforced to prevent future debt

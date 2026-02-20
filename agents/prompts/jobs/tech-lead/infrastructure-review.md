@@ -51,7 +51,6 @@ Check for drift between environments:
 
 ## Output
 
-- Max 2 issues for infrastructure improvements (use the issue template from your identity)
+- Up to 2 issues for infrastructure improvements; zero if infrastructure is healthy (use the issue template from your identity)
 - Add `infrastructure` label alongside `source/tech-lead`
 - For cost-related findings: include estimated savings if possible
-- Updated conventions if you identify a missing operational standard

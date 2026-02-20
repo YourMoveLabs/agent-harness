@@ -54,7 +54,6 @@ Read the auth-related code paths:
 
 ## Output
 
-- Max 2 issues for security findings (use the issue template from your identity)
+- Up to 2 issues for security findings; zero if nothing found (use the issue template from your identity)
 - Security-specific labels: add `security` label alongside `source/tech-lead`
 - For critical findings (exposed secrets, missing auth on sensitive endpoints): note urgency clearly in the Risk section
-- Updated conventions if you identify a missing security standard

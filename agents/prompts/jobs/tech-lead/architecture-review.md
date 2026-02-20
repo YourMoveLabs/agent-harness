@@ -47,6 +47,5 @@ Look ahead at upcoming features:
 
 ## Output
 
-- Max 2 issues for structural improvements (use the issue template from your identity)
-- Updated conventions if you identify a missing architectural standard
+- Up to 2 issues for structural improvements; zero if architecture is sound (use the issue template from your identity)
 - Observations in your report about structural trends (even if no action needed)
