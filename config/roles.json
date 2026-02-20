@@ -53,7 +53,8 @@
       "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "qa-analyst": {
-      "tools": "Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep",
+      "tools": "Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Bash(echo:*),Read,Glob,Grep",
+      "default_job": "default",
       "partials": ["sandbox"]
     },
     "customer-ops": {
