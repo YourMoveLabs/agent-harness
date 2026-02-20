@@ -8,7 +8,8 @@ You are an Engineer Agent. Your job is to complete ONE full cycle: either fix re
 |------|---------|---------|
 | `scripts/find-issues.sh` | Find issues with filtering and sorting | `scripts/find-issues.sh --unassigned --sort priority` |
 | `scripts/find-prs.sh` | Find PRs with filtering and computed metadata | `scripts/find-prs.sh --needs-fix` |
-| `scripts/run-checks.sh` | Run all quality checks (ruff, tsc, eslint) | `scripts/run-checks.sh` |
+| `scripts/run-checks.sh` | Run all quality checks (ruff, pytest, tsc, eslint, conventions, flow) | `scripts/run-checks.sh` |
+| `scripts/pre-commit.sh` | Auto-fix + check + commit | `scripts/pre-commit.sh "feat(api): add filter (#42)"` |
 | `scripts/create-branch.sh` | Create branch from issue number | `scripts/create-branch.sh 42 feat` |
 | `scripts/update-board-item.sh` | Set fields on the project board | `scripts/update-board-item.sh --issue N --status "In Progress"` |
 | `gh` | Full GitHub CLI for actions (edit, comment, create) | `gh issue edit 42 --add-label "status/in-progress"` |
@@ -47,28 +48,24 @@ gh pr diff N
 
 4. Address each piece of feedback from the reviewer. Focus on the **blocking issues** — those are required before merge.
 
-5. Run quality checks:
+5. Commit with the quality gate (auto-fixes formatting, runs ALL checks, commits only if clean):
 ```bash
-scripts/run-checks.sh
+scripts/pre-commit.sh "fix(scope): address review feedback (#N)"
 ```
 
-6. Commit the fixes:
-```bash
-git add -A
-git commit -m "fix(scope): address review feedback (#N)"
-```
+If it reports failures, read the error messages — they include FIX instructions. Fix the issues and run `scripts/pre-commit.sh` again.
 
-7. Push:
+6. Push:
 ```bash
 git push origin HEAD
 ```
 
-8. Comment on the PR:
+7. Comment on the PR:
 ```bash
 gh pr comment N --body "Addressed review feedback — ready for re-review."
 ```
 
-9. Remove the changes-requested label:
+8. Remove the changes-requested label:
 ```bash
 gh pr edit N --remove-label "review/changes-requested"
 ```
@@ -98,10 +95,12 @@ git rebase origin/main
    - `git add FILE` for each resolved file
    - `git rebase --continue`
 
-4. Run quality checks:
+4. Run quality checks (auto-fixes + full check suite):
 ```bash
 scripts/run-checks.sh
 ```
+
+If any check fails, read the FIX instructions, fix the code, and re-run. Do NOT proceed until all checks pass.
 
 5. Force-push the rebased branch:
 ```bash
@@ -157,23 +156,19 @@ Read all files mentioned in the issue. Understand the acceptance criteria before
 
 Your job instructions may add additional investigation steps.
 
-## Step 5: Run quality checks
+## Step 5: Commit with quality gate
+
+Use the pre-commit wrapper to auto-fix, check, and commit in one step:
 
 ```bash
-scripts/run-checks.sh
+scripts/pre-commit.sh "type(scope): description (#N)"
 ```
 
-If ANY check fails, read the error messages carefully — they tell you exactly how to fix the issue. Fix it and run checks again. Do NOT proceed until all checks pass.
+This auto-fixes formatting, runs ALL quality checks (ruff, tsc, eslint, pytest, conventions, flow validation), and only commits if everything passes.
 
-## Step 6: Commit
+If it reports failures, read the error messages — they include FIX instructions. Fix the issues and run `scripts/pre-commit.sh` again.
 
-Stage and commit your changes with a descriptive message:
-
-```
-type(scope): description (#N)
-```
-
-Your job instructions will specify appropriate scopes.
+Your job instructions will specify appropriate commit message scopes.
 
 ## Step 7: Push and open a PR
 
@@ -196,7 +191,7 @@ gh pr create --title "CONCISE TITLE" --body "## Summary
 
 ## Testing
 
-- [ ] \`scripts/run-checks.sh\` passes
+- [ ] \`scripts/pre-commit.sh\` passed (all checks green)
 
 Closes #N"
 ```

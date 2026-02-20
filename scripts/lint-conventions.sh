@@ -46,6 +46,38 @@ if [ -n "$LARGE_FILES" ]; then
     echo "  This is a warning, not a failure."
 fi
 
+# --- httpx import guard ---
+# All HTTP calls should use http_client.py helper, not raw httpx
+if [ -d "api/services" ]; then
+    HTTPX_VIOLATIONS=$(grep -rl "import httpx" api/services/ api/routers/ \
+        --include="*.py" 2>/dev/null \
+        | grep -v "http_client.py" \
+        | grep -v "tests/" || true)
+
+    # Allowlist for known exceptions (existing debt)
+    HTTPX_ALLOWLIST="ingestion/rss.py|ingestion/scraper.py|routers/blog.py|goals_metrics.py"
+    HTTPX_NEW=$(echo "$HTTPX_VIOLATIONS" | grep -vE "$HTTPX_ALLOWLIST" | grep -v '^$' || true)
+
+    if [ -n "$HTTPX_NEW" ]; then
+        echo "ERROR: New files importing httpx directly (use http_client.py helper):"
+        echo "$HTTPX_NEW" | while read -r f; do echo "  $f"; done
+        echo "  FIX: Import and use github_api_get() or the shared HTTP client instead."
+        FAILED=1
+    fi
+fi
+
+# --- Agent workflow/map consistency ---
+# Detect when new agent-*.yml workflows are added but maps aren't updated
+if [ -d ".github/workflows" ] && [ -f "api/services/github_status.py" ]; then
+    WORKFLOW_COUNT=$(find .github/workflows -name "agent-*.yml" 2>/dev/null | wc -l)
+    MAP_ENTRIES=$(grep -c '"agent-' api/services/github_status.py 2>/dev/null || echo "0")
+    if [ "$WORKFLOW_COUNT" -gt "$((MAP_ENTRIES + 3))" ]; then
+        echo "WARNING: $WORKFLOW_COUNT agent workflows but only ~$MAP_ENTRIES map entries"
+        echo "  Check api/services/github_status.py WORKFLOW_AGENT_MAP for completeness"
+        echo "  This is a warning, not a failure."
+    fi
+fi
+
 if [ $FAILED -ne 0 ]; then
     exit 1
 else
