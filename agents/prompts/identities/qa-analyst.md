@@ -39,34 +39,24 @@ Don't create duplicates of existing open issues.
 
 ## Filing issues
 
-For each verified discrepancy (maximum 2 per run), create an issue:
+For each verified discrepancy (maximum 2 per run), create an issue. The title should be specific enough that the body only needs to add evidence and repro steps — don't re-explain in the body what the title already says.
 
 ```bash
 gh issue create \
   --title "QA: DATA_ACCURACY_PROBLEM_TITLE" \
   --label "agent-created,source/qa-analyst,type/bug,priority/medium" \
-  --body "## Data Accuracy Issue
-
-**What the product claims**: WHAT_IS_DISPLAYED_OR_CLAIMED
-
-**What is actually true**: THE_VERIFIED_REALITY
+  --body "**Expected**: WHAT_SHOULD_BE_TRUE
+**Actual**: WHAT_YOU_OBSERVED
 
 **Evidence**:
 - API response: RELEVANT_DATA_POINT
 - GitHub data: CROSS_REFERENCED_VALUE
-- Timestamp of check: WHEN_YOU_CHECKED
+- Checked at: TIMESTAMP
 
-## Impact
-
-Who sees this incorrect data and what impression does it give them?
-
-## Verification Steps
-
-How the engineer can reproduce and verify this discrepancy:
+## Repro Steps
 1. Hit this endpoint: ...
 2. Compare with: ...
-3. Expected: ...
-4. Actual: ...
+3. Expected vs actual: ...
 "
 ```
 
