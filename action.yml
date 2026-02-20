@@ -49,7 +49,10 @@ runs:
 
     - name: Clean agent logs
       shell: bash
-      run: rm -rf /tmp/agent-logs && mkdir -p /tmp/agent-logs
+      run: |
+        export AGENT_LOG_DIR="/tmp/agent-logs-${{ github.run_id }}"
+        echo "AGENT_LOG_DIR=$AGENT_LOG_DIR" >> "$GITHUB_ENV"
+        rm -rf "$AGENT_LOG_DIR" && mkdir -p "$AGENT_LOG_DIR"
 
     - name: Chain depth guard
       shell: bash
@@ -104,7 +107,7 @@ runs:
       if: always()
       shell: bash
       run: |
-        USAGE_DIR="/tmp/agent-logs"
+        USAGE_DIR="${AGENT_LOG_DIR:-/tmp/agent-logs}"
         USAGE_FILES=$(ls "$USAGE_DIR"/*-usage.json 2>/dev/null || true)
 
         if [ -z "$USAGE_FILES" ]; then
@@ -145,7 +148,7 @@ runs:
       if: always()
       shell: bash
       run: |
-        USAGE_DIR="/tmp/agent-logs"
+        USAGE_DIR="${AGENT_LOG_DIR:-/tmp/agent-logs}"
         LOG_FILES=$(ls "$USAGE_DIR"/*.log 2>/dev/null | grep -v '\.stderr' || true)
         [ -z "$LOG_FILES" ] && exit 0
 
@@ -186,7 +189,7 @@ runs:
       if: always()
       shell: bash
       run: |
-        USAGE_DIR="/tmp/agent-logs"
+        USAGE_DIR="${AGENT_LOG_DIR:-/tmp/agent-logs}"
         USAGE_FILES=$(ls "$USAGE_DIR"/*-usage.json 2>/dev/null || true)
         [ -z "$USAGE_FILES" ] && exit 0
 
@@ -218,11 +221,16 @@ runs:
         }
 
         # Upload to blob storage
-        az storage blob upload \
+        if ! az storage blob upload \
           --account-name "${{ inputs.azure-storage-account }}" \
           --container-name "${{ inputs.azure-usage-container }}" \
           --name "${{ github.run_id }}.json" \
           --file "$MERGED" \
           --content-type "application/json" \
           --auth-mode login \
-          --overwrite 2>/dev/null || echo "WARNING: Blob upload failed (non-fatal)"
+          --overwrite; then
+          echo "WARNING: Blob upload failed (non-fatal)" | tee -a "$GITHUB_STEP_SUMMARY"
+        fi
+
+        # Clean up run-specific log dir
+        rm -rf "${AGENT_LOG_DIR:-/tmp/agent-logs}"
