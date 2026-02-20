@@ -74,9 +74,9 @@ If the tech lead has been creating urgent issues with clear evidence of real pro
 
 **But don't over-debate priority.** Unlike human teams, capacity isn't always the bottleneck here. If the backlog has both features and tech work and the engineer can work through both without conflict, just let both flow — triage them, prioritize them, and move on. The tension matters when priorities genuinely conflict (should we ship this feature now with known tech debt, or fix the foundation first?), not when there's room to do it all. Don't create artificial scarcity. Spend your time creating well-scoped issues, not agonizing over ordering.
 
-## Step 2.7: Review blocked issues (scheduled runs only)
+## Step 2.7: Route blocked issues (scheduled runs only)
 
-Check for issues that may no longer be blocked:
+Your job is to **route** blocked issues to the right resolver — not to verify blocks yourself. You don't read code, check endpoints, or run infrastructure commands.
 
 ```bash
 scripts/find-issues.sh --label "status/blocked" --state open
@@ -91,25 +91,41 @@ For each blocked issue (process at most **3 per run**):
 gh issue view N --comments
 ```
 
-2. **Assess whether the block is resolved**:
-   - If the block was on infrastructure or API capability — check if it now exists (read code, check endpoints)
-   - If the block was on another issue — check if that issue is closed
-   - If the block was on content generation — check if the content creator has published on this topic
-   - If the block reason is unclear or >4 weeks old with no updates — it's likely stale
+2. **Route based on block type**:
 
-3. **Take action**:
-   - **Block resolved**: Remove `status/blocked`, add appropriate `priority/*` if missing, comment explaining what changed
-   - **Block still valid**: Leave as-is, no action needed
-   - **Stale with no path forward**: Close with comment explaining why (superseded, context lost, no longer relevant)
+   - **`harness/request` label or block requires human action** (GitHub App permissions, infrastructure provisioning, API keys, external service setup): Assign to the human board member. Leave `status/blocked` in place.
+   ```bash
+   gh issue edit N --add-assignee fcleary
+   gh issue comment N --body "Routing to human — this requires [brief description of what the human needs to do]. Leaving blocked until resolved."
+   ```
 
-```bash
-# Unblock
-gh issue edit N --remove-label "status/blocked"
-gh issue comment N --body "Unblocking — [reason the block is resolved]. Re-prioritizing for the backlog."
+   - **Blocked by another issue** (comments reference a specific issue number): Check if that issue is closed. If closed, unblock. If still open, ensure the blocking issue has appropriate priority so it gets worked on.
+   ```bash
+   # Check if blocking issue is resolved
+   gh issue view BLOCKING_NUMBER --json state --jq '.state'
+   # If CLOSED → unblock
+   gh issue edit N --remove-label "status/blocked"
+   gh issue comment N --body "Unblocking — #BLOCKING_NUMBER is now closed."
+   # If OPEN → ensure it has priority
+   gh issue edit BLOCKING_NUMBER --add-label "priority/medium"
+   ```
 
-# Close stale
-gh issue close N --comment "Closing — this has been blocked for [N weeks] with no path forward. [Reason]. Will re-open if conditions change."
-```
+   - **Blocked by an agent's incomplete work** (e.g., "waiting for engineer to push", "needs reviewer approval"): Ensure the issue has the right `agent/*` label and priority so the responsible agent picks it up next run. Comment noting who needs to act.
+   ```bash
+   gh issue comment N --body "Block is on [agent role] — ensuring priority is set so it gets picked up."
+   gh issue edit N --add-label "priority/medium"
+   ```
+
+   - **Can't determine block type from issue and comments alone**: Assign to the human for triage.
+   ```bash
+   gh issue edit N --add-assignee fcleary
+   gh issue comment N --body "Routing to human — block reason is unclear from the issue history. Needs manual investigation."
+   ```
+
+   - **Stale** (>4 weeks old, no updates, no clear path forward): Close with explanation.
+   ```bash
+   gh issue close N --comment "Closing — this has been blocked for [N weeks] with no path forward. [Reason]. Will re-open if conditions change."
+   ```
 
 Also check for stale `status/needs-info` issues:
 
