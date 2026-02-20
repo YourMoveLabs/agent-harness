@@ -61,6 +61,11 @@ if [ -z "$PROMPT_ROLE" ]; then
     PROMPT_ROLE="$PARENT_ROLE"
 fi
 
+# Resolve default job from config if not specified on command line
+if [ -z "$JOB" ]; then
+    JOB=$(echo "$ROLE_CONFIG" | jq -r '.config.default_job // empty')
+fi
+
 PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
 PROMPT_FILE="$HARNESS_ROOT/agents/prompts/${PROMPT_ROLE}.md"
 LOG_DIR="${AGENT_LOG_DIR:-/tmp/agent-logs}"

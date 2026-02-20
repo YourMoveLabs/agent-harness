@@ -63,41 +63,25 @@ Note the areas of the product that were recently changed. These are your primary
 
 ## Step 3: Verify live product data
 
-Check the live API endpoints for data accuracy. Use the endpoints from `CLAUDE.md`.
+Check the live API endpoints for data accuracy. Read `CLAUDE.md` for the API base URL and available endpoints.
+
+For each endpoint, verify:
 
 ### API Health
-
-```bash
-curl -s https://api.agentfishbowl.com/api/fishbowl/health
-```
-
-Verify: Does the health response match reality? Are all components actually healthy?
+- Does the health response match reality? Are all components actually healthy?
 
 ### Articles
-
-```bash
-curl -s https://api.agentfishbowl.com/api/fishbowl/articles
-```
-
-Verify:
 - Are article dates recent (not stale)?
 - Do article titles and descriptions make sense (not garbled)?
 - Are there duplicate articles?
 - Do article links resolve?
 
 ### Activity Feed
-
-```bash
-curl -s https://api.agentfishbowl.com/api/fishbowl/activity
-```
-
-Verify:
 - Does the activity feed reflect recent GitHub activity?
 - Are agent names correct (match the team roster)?
 - Are timestamps reasonable (not in the future, not months old)?
 
 ### Team / Goals Pages
-
 If there are API endpoints for team or goals data, check those too. Cross-reference displayed team info against the actual `CLAUDE.md` Agent Team table.
 
 ## Step 4: Cross-reference claims vs reality
@@ -114,11 +98,8 @@ gh run list --limit 50 --json workflowName,status,conclusion,createdAt
 Compare: Does the "active agents" claim on the site match how many agents actually executed in the last 7 days?
 
 ### GitHub metrics
-```bash
-gh api repos/YourMoveLabs/agent-fishbowl --jq '{stars: .stargazers_count, forks: .forks_count, open_issues: .open_issues_count}'
-```
 
-Compare: If the site displays any GitHub metrics, do they match?
+Use `gh api` to fetch the repo's star count, fork count, and open issues count. Compare: If the site displays any GitHub metrics, do they match?
 
 ### Content freshness
 

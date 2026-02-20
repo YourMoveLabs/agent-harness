@@ -7,9 +7,12 @@
   "roles": {
     "engineer": {
       "tools": "Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Bash(cat:*),Bash(chmod:*),Read,Write,Edit,Glob,Grep",
+      "default_job": "default",
       "partials": ["reflection", "knowledge-base"]
     },
     "infra-engineer": {
+      "prompt_role": "engineer",
+      "default_job": "infrastructure",
       "tools": "Bash(az:*),Bash(terraform:*),Bash(docker:*),Bash(curl:*),Bash(python3:*),Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(cat:*),Bash(chmod:*),Bash(date:*),Bash(jq:*),Bash(scripts/*),Read,Write,Edit,Glob,Grep",
       "partials": ["reflection", "knowledge-base"]
     },
@@ -18,17 +21,15 @@
       "partials": ["reflection", "knowledge-base"]
     },
     "product-owner": {
-      "prompt_role": "po",
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["reflection", "knowledge-base"]
     },
     "product-manager": {
-      "prompt_role": "pm",
       "tools": "Bash(gh:*),Bash(cat:*),Bash(scripts/*),Read",
       "partials": ["reflection", "knowledge-base"]
     },
     "tech-lead": {
-      "tools": "${COMMON},Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Write,Edit",
+      "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["reflection", "knowledge-base"]
     },
     "site-reliability": {
@@ -37,35 +38,35 @@
     },
     "content-creator": {
       "tools": "${API},Bash(sleep:*),Bash(echo:*)",
-      "partials": ["knowledge-base"]
+      "partials": ["sandbox", "knowledge-base"]
     },
     "product-analyst": {
       "tools": "${API}",
-      "partials": ["reflection", "knowledge-base"]
+      "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "financial-analyst": {
       "tools": "${API}",
-      "partials": ["reflection", "knowledge-base"]
+      "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "marketing-strategist": {
       "tools": "${API}",
-      "partials": ["reflection", "knowledge-base"]
+      "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "qa-analyst": {
       "tools": "Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep",
-      "partials": []
+      "partials": ["sandbox"]
     },
     "customer-ops": {
       "tools": "${API}",
-      "partials": []
+      "partials": ["sandbox"]
     },
     "human-ops": {
       "tools": "${API}",
-      "partials": []
+      "partials": ["sandbox"]
     },
     "escalation-lead": {
       "tools": "${COMMON},Bash(scripts/*)",
-      "partials": []
+      "partials": ["sandbox"]
     },
     "triage": {
       "tools": "${COMMON},Bash(scripts/*)",

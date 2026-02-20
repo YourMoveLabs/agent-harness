@@ -218,51 +218,18 @@ gh project item-create PROJECT_NUMBER --owner OWNER \
   --body "Description of what the user should experience and why it matters for the goals."
 ```
 
-Then set fields on the new item (you'll need the item ID from the create output):
+Then set fields on the new item using field and option IDs from `scripts/project-fields.sh`:
 
 ```bash
-# Set Priority
-gh project item-edit --id ITEM_ID --field-id PRIORITY_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id PRIORITY_OPTION_ID
-
-# Set Goal
-gh project item-edit --id ITEM_ID --field-id GOAL_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id GOAL_OPTION_ID
-
-# Set Phase
-gh project item-edit --id ITEM_ID --field-id PHASE_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id PHASE_OPTION_ID
-
-# Set Roadmap Status (usually "Proposed" for new items)
-gh project item-edit --id ITEM_ID --field-id ROADMAP_STATUS_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id PROPOSED_OPTION_ID
-
-# Set Status (built-in) to "Todo"
-gh project item-edit --id ITEM_ID --field-id STATUS_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id TODO_OPTION_ID
+gh project item-edit --id ITEM_ID --field-id FIELD_ID \
+  --project-id PROJECT_ID --single-select-option-id OPTION_ID
 ```
+
+For new items, set all five fields: Priority, Goal, Phase, Roadmap Status (usually "Proposed"), and Status ("Todo").
 
 ### Updating an existing item
 
-Change priority or Roadmap Status:
-
-```bash
-# Promote an item to P1
-gh project item-edit --id ITEM_ID --field-id PRIORITY_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id P1_OPTION_ID
-
-# Mark Roadmap Status as Active (PM is prioritizing this)
-gh project item-edit --id ITEM_ID --field-id ROADMAP_STATUS_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id ACTIVE_OPTION_ID
-
-# Mark Roadmap Status as Done (strategic objective met)
-gh project item-edit --id ITEM_ID --field-id ROADMAP_STATUS_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id DONE_OPTION_ID
-
-# Defer an item
-gh project item-edit --id ITEM_ID --field-id ROADMAP_STATUS_FIELD_ID \
-  --project-id PROJECT_ID --single-select-option-id DEFERRED_OPTION_ID
-```
+Use the same `gh project item-edit` pattern to change any field value — priority, roadmap status, goal, or phase. Look up the correct field and option IDs from `scripts/project-fields.sh` each run.
 
 **Note**: You only manage the **Roadmap Status** field. The built-in **Status** field (Todo/In Progress/Done) is managed automatically by GitHub workflows — when issues close or PRs merge, Status updates to "Done" automatically. Don't manually set the built-in Status unless correcting a mismatch.
 
