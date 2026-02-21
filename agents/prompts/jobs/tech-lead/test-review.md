@@ -1,23 +1,29 @@
 Sweep the test suite to ensure tests are actually protecting the project — not just inflating counts or creating false confidence. A test that passes but wouldn't catch a real bug is worse than no test: it makes the team *feel* safe without *being* safe.
 
-## Step 1: Run the test suite
+## Step 1: Run coverage (programmatic)
 
-Execute the full test suite to establish baseline:
+Run the test suite with coverage reporting — let the tool measure what's tested:
 
 ```bash
-scripts/run-checks.sh
+scripts/test-coverage.sh
 ```
 
-Note:
-- Total test count (pass / fail / skip / error)
-- Execution time
-- Any skipped or xfail tests — why are they skipped? Is the skip permanent or temporary?
+This gives you hard data: pass/fail counts, per-file coverage percentages, and which lines are uncovered. **Do not guess at coverage — read the numbers.**
 
-If any tests are currently failing, that's your first priority. A red suite that everyone ignores is the worst form of false confidence.
+From the output, note:
+- Any failing tests (your first priority — a red suite everyone ignores is the worst form of false confidence)
+- Files with very low coverage on critical paths (auth, billing, state machines, integrations)
+- Files with suspiciously high coverage that you should spot-check for test quality
+- Skipped or xfail tests — why are they skipped?
 
-## Step 2: Read tests critically
+## Step 2: Read tests critically (AI judgment)
 
-Sample 3-5 test files — prioritize files with the most tests or that cover critical paths (auth, billing, state machines, external integrations).
+Now use the coverage data to guide your reading. The tool told you *what* is tested; your job is to evaluate *how well*.
+
+Sample 3-5 test files — prioritize:
+- Files the coverage report shows as high-coverage on critical paths (verify the coverage is meaningful, not illusory)
+- Files with the most tests (high test count doesn't mean high value)
+- Any test files that correspond to low-coverage source files (understand why coverage is low)
 
 For each test you read, ask:
 
@@ -45,17 +51,17 @@ Tests that cause maintenance burden without catching bugs:
 - **Trivial tests**: Testing that a constant equals itself, that a constructor sets attributes, or that a simple getter returns a field. These pad coverage without providing safety.
 - **Flaky tests**: Tests that pass/fail non-deterministically. These train the team to ignore red CI.
 
-## Step 5: Assess coverage on critical paths
+## Step 5: Cross-reference coverage with critical paths
 
-Check that the areas where bugs would be most costly have *meaningful* tests (not just any tests):
+Use the coverage numbers from Step 1 to identify where coverage gaps *matter most*. Not all uncovered code is equal — focus on areas where bugs would be costly:
 
-- **Authentication/authorization** — tested with realistic token scenarios, not just "mock returns True"?
-- **Payment/billing** — credit holds, consumption, refunds, edge cases (insufficient credits, concurrent requests)?
-- **State machines** — all valid transitions tested? Invalid transitions rejected?
+- **Authentication/authorization** — what does the coverage report show? Are auth modules tested with realistic scenarios, or just "mock returns True"?
+- **Payment/billing** — are financial operations covered? Check for edge cases (insufficient credits, concurrent requests), not just happy paths.
+- **State machines** — are all valid transitions tested? Are invalid transitions rejected?
 - **External integrations** — API contract tests? Error handling for timeouts, rate limits, malformed responses?
 - **Data integrity** — concurrent writes, uniqueness constraints, cascade deletes?
 
-A gap in critical-path coverage is more important than 10 low-value tests on non-critical code.
+A coverage gap on a critical path is more important than 10 low-value tests on non-critical code. Conversely, 95% coverage on a billing module that only tests the happy path is false confidence.
 
 ## Step 6: Net assessment
 
