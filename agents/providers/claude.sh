@@ -25,11 +25,14 @@ fi
 PROVIDER_FLAGS=()
 [ -n "$MODEL" ] && PROVIDER_FLAGS+=(--model "$MODEL")
 [ -n "$MAX_BUDGET" ] && PROVIDER_FLAGS+=(--max-budget-usd "$MAX_BUDGET")
+# Opus runs: fall back to Sonnet if overloaded
+[ "$MODEL" = "opus" ] && PROVIDER_FLAGS+=(--fallback-model "sonnet")
 
 # --- Invoke ---
 claude -p "$PROMPT_TEXT" \
     --allowedTools "$ALLOWED_TOOLS" \
     --output-format json \
+    --no-session-persistence \
     "${PROVIDER_FLAGS[@]}" \
     2>"$LOG_FILE.stderr" | tee "$RAW_OUTPUT"
 

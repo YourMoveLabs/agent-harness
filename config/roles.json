@@ -20,18 +20,17 @@
   },
   "roles": {
     "engineer": {
-      "model": "opus",
-      "thinking_budget": 0,
-      "effort_level": "high",
-      "max_budget": 5.00,
+      "model": "sonnet",
+      "thinking_budget": 10000,
+      "max_budget": 3.00,
       "effort_configs": {
         "effort/small":  { "model": "sonnet", "thinking_budget": 0, "max_budget": 1.50 },
         "effort/medium": { "model": "sonnet", "thinking_budget": 10000, "max_budget": 3.00 },
-        "effort/large":  { "model": "opus", "thinking_budget": 0, "effort_level": "high", "max_budget": 5.00 }
+        "effort/large":  { "model": "opus", "max_budget": 5.00 }
       },
       "tools": "Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Bash(cat:*),Bash(chmod:*),Read,Write,Edit,Glob,Grep",
       "default_job": "default",
-      "partials": ["reflection", "knowledge-base"]
+      "partials": ["reflection"]
     },
     "ops-engineer": {
       "model": "sonnet",
@@ -42,13 +41,13 @@
       "partials": ["reflection", "knowledge-base"]
     },
     "reviewer": {
-      "model": "opus",
-      "thinking_budget": 0,
-      "max_budget": 3.00,
+      "model": "sonnet",
+      "thinking_budget": 10000,
+      "max_budget": 2.00,
       "effort_configs": {
         "effort/small":  { "model": "sonnet", "thinking_budget": 0, "max_budget": 1.00 },
         "effort/medium": { "model": "sonnet", "thinking_budget": 10000, "max_budget": 2.00 },
-        "effort/large":  { "model": "opus", "thinking_budget": 0, "max_budget": 3.00 }
+        "effort/large":  { "model": "opus", "max_budget": 3.00 }
       },
       "tools": "${COMMON},Bash(scripts/*)",
       "default_job": "deep-review",

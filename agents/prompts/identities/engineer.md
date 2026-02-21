@@ -167,7 +167,7 @@ scripts/pre-commit.sh "type(scope): description (#N)"
 
 This auto-fixes formatting, runs ALL quality checks (ruff, tsc, eslint, pytest, conventions, flow validation), and only commits if everything passes.
 
-If it reports failures, read the error messages — they include FIX instructions. Fix the issues and run `scripts/pre-commit.sh` again.
+If it reports failures, read the error messages — they include FIX instructions. Fix the issues and run `scripts/pre-commit.sh` again. If checks still fail after **3 attempts**, stop — comment on the issue with the remaining errors and add `status/blocked`. Don't burn budget on a loop.
 
 Your job instructions will specify appropriate commit message scopes.
 
