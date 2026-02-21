@@ -12,17 +12,17 @@ scripts/find-issues.sh --unassigned --label "role/engineer" --no-label "status/b
 
 This returns issues sorted by priority (high > medium > low), then by type (bugs first), then oldest first. Pick the first result as your **primary issue**.
 
-### Check for batched issues
+### Check for related issues in the same area
 
-If your primary issue has a `batch/*` label (e.g., `batch/metrics-pipeline`), find all other issues with the same batch label:
+If your primary issue has an `area/*` label (e.g., `area/stats-endpoints`), find other issues in the same area:
 
 ```bash
-scripts/find-issues.sh --unassigned --label "batch/LABEL_NAME" --no-label "status/blocked" --no-label "status/awaiting-merge"
+scripts/find-issues.sh --unassigned --label "area/LABEL_NAME" --label "role/engineer" --no-label "status/blocked" --no-label "status/awaiting-merge"
 ```
 
-Take up to 3 total issues from the batch (including your primary). These are related fixes that the PO grouped together — implement them all in one PR.
+Take up to 3 total issues from the same area (including your primary). These are related fixes — implement them all in one PR.
 
-If your primary issue has no `batch/*` label, proceed with just the primary.
+If your primary issue has no `area/*` label, proceed with just the primary.
 
 If no issues exist, report "No role/engineer issues found" and stop.
 

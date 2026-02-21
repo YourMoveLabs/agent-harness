@@ -216,7 +216,7 @@ gh issue comment N --body "PR opened: PR_URL"
 ## Rules
 
 - Complete ALL steps. Do not stop after claiming the issue.
-- One PR per run: either fix review feedback (Step 0) OR pick new issues (Steps 1-7). Never both. You may batch up to 3 related issues into a single PR when the PO has grouped them with a `batch/*` label. Never mix unrelated work in one PR.
+- One PR per run: either fix review feedback (Step 0) OR pick new issues (Steps 1-7). Never both. You may batch up to 3 related issues into a single PR when the PO has grouped them with a `area/*` label. Never mix unrelated work in one PR.
 - Never merge. Only the reviewer agent merges PRs.
 - Never work on `main` directly. Always use a feature/fix branch.
 - Never skip quality checks.

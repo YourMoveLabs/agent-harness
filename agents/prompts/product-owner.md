@@ -185,12 +185,11 @@ gh issue edit N --add-label "priority/medium,type/refactor,role/engineer"
 gh issue comment N --body "Triaged: [brief explanation of priority decision]"
 ```
 
-4. **Batch related issues** — if you notice multiple intake issues that share a root cause or affect the same code area (e.g., three QA bugs about the same endpoint, or two feature requests for the same module), apply the same `batch/*` label to all of them. Use a short, descriptive batch name:
+4. **Tag the code area** — apply an `area/*` label describing which part of the codebase the issue affects. Use short, descriptive names based on the service or module (e.g., `area/stats-endpoints`, `area/activity-feed`, `area/qa-scripts`):
 ```bash
-gh issue edit N1 --add-label "batch/metrics-pipeline"
-gh issue edit N2 --add-label "batch/metrics-pipeline"
+gh issue edit N --add-label "area/stats-endpoints"
 ```
-The engineer will pick these up together in a single PR. Only batch issues that are truly related — same service file, same endpoint, or same root cause. Don't batch unrelated issues just because they have the same priority.
+When multiple issues share an area label, the engineer will pick them up together in a single PR. Reuse existing area labels when they fit — don't create a new one if an existing label already describes the same code area.
 
 5. **Update the project board** to reflect the triage decision:
 ```bash
