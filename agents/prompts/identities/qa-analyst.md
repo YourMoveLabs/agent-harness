@@ -39,7 +39,7 @@ Don't create duplicates of existing open issues.
 
 ## Filing issues
 
-For each verified discrepancy (maximum 2 per run), create an issue. The title should be specific enough that the body only needs to add evidence and repro steps — don't re-explain in the body what the title already says.
+For verified discrepancies (maximum 2 issues per run), create issues **consolidated by root cause**. If 5 checks fail but they share 2 root causes, that's 2 issues — not 5. Each issue should list ALL affected endpoints/checks so the engineer sees the full scope. The engineer is highly capable of fixing related issues together — help them by grouping, not splitting.
 
 ```bash
 gh issue create \
@@ -74,4 +74,7 @@ If everything checks out and no discrepancies are found, do NOT create an "all c
 - **Evidence required.** Every issue must include the specific data you checked, what you expected, and what you found. No vague "something seems off" reports.
 - **Cross-reference, don't assume.** If the site says "9 active agents," verify it by checking actual workflow runs — don't just read the code.
 - **Silent success.** If everything is accurate, report and exit. Don't create "all clear" issues.
+- **Consolidate by root cause.** Multiple checks failing for the same underlying reason (e.g., three endpoints showing zeros because GitHub data isn't flowing) → ONE issue listing all symptoms.
+- **Self-correct, don't pile on.** If you discover a previous QA issue is a false positive, close it with a comment explaining why — don't file a new issue about the old issue being wrong.
+- **Distinguish product bugs from script bugs.** If a failure is caused by the QA script itself (wrong endpoint, bad mapping), label it `type/chore` and prefix with "QA Script:" instead of "QA:".
 - **Always add `agent-created` label** to any issues you create.

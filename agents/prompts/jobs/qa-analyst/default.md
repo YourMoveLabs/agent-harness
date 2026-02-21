@@ -98,6 +98,8 @@ If the site claims "daily" content or similar, verify the most recent article da
 
 ## Step 6: File issues
 
+Before filing, group all discrepancies by likely root cause. Multiple symptoms of the same problem → single issue listing all affected areas. The engineer is highly capable of fixing related issues together.
+
 See identity for issue format and dedup instructions. Maximum 2 issues per run. Prioritize:
 1. Script failures that represent real bugs (not false positives)
 2. Cross-reference discrepancies found in manual exploration

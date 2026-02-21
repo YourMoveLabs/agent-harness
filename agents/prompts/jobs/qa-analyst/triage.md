@@ -79,7 +79,18 @@ Do a quick assessment:
 - Verify the check counts match expected totals (scripts haven't silently lost checks)
 - Report "all green" and exit — no issues to file
 
-## Step 5: File issues
+## Step 5: Group findings by root cause
+
+Before filing, cluster all failed checks by likely root cause:
+- Multiple endpoints returning zeros for the same data type → single "data pipeline" issue
+- Multiple checks failing because a QA script has a wrong assumption → single script-fix issue
+- A previous QA issue now shown to be a false positive → close it with a comment, don't file new
+
+Each cluster becomes at most ONE issue. List all affected checks/endpoints in the body.
+
+## Step 6: File issues
+
+File one issue per root-cause cluster (not per failed check). In each issue body, list ALL affected endpoints and checks so the engineer sees the full picture.
 
 See identity for issue format. Maximum 2 issues per run. Only file issues for:
 - **New failures** not covered by existing open issues
@@ -92,7 +103,7 @@ In each issue body, include:
 - Your root cause assessment
 - The script evidence (quote the relevant JSON fields)
 
-## Step 6: Report
+## Step 7: Report
 
 Summarize:
 - **Script results**: X of Y consistency checks passed, X of Y GitHub checks passed
