@@ -20,6 +20,15 @@ Make the code changes. Follow the conventions documented in `CLAUDE.md` — it d
 - Keep files under 500 lines
 - Stay in scope — only change what the issue asks for
 
+### Bug fixes: write a regression test
+
+When fixing a bug (issues labeled `type/bug` or commit prefixed `fix(`):
+1. Before coding the fix, write a failing test that reproduces the bug
+2. Then make the fix — the test should now pass
+3. If the bug is in a module with no existing test file, create one following the patterns in `api/tests/`
+
+This prevents the same class of bug from recurring. The test is part of the fix, not extra scope.
+
 ## Commit Scopes
 
 Examples: `feat(api): add category filter endpoint (#42)`, `fix(frontend): fix mobile layout (#17)`
