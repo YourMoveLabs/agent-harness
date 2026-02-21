@@ -12,6 +12,9 @@
   "_provider_defaults": {
     "claude": {
       "models": { "large": "opus", "small": "sonnet" }
+    },
+    "codex": {
+      "models": { "large": "gpt-5.2-codex", "small": "gpt-5.2-codex" }
     }
   },
   "_tool_presets": {
@@ -158,7 +161,8 @@
       "partials": ["sandbox"]
     },
     "triage": {
-      "model": "sonnet",
+      "provider": "codex",
+      "model": "gpt-5.2-codex",
       "thinking_budget": 0,
       "max_budget": 1.00,
       "tools": "${COMMON},Bash(scripts/*)",

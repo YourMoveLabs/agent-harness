@@ -45,8 +45,9 @@ Before adding an agent, you need:
 | # | Task | Details |
 |---|------|---------|
 | 11 | GitHub App | Create `fishbowl-{role}` app on GitHub.com. Permissions: issues (r/w), contents (read), PRs (read). Install on `YourMoveLabs/agent-fishbowl`. |
-| 12 | PEM Key | Generate private key from GitHub App settings → save to `~/.config/agent-fishbowl/fishbowl-{role}.pem` on runner VM |
-| 13 | .env vars | Add to `~/.config/agent-harness/.env` on runner VM (`20.127.56.119`): `GITHUB_APP_{ROLE_UPPER}_ID`, `_INSTALLATION_ID`, `_KEY_PATH`, `_USER_ID`, `_BOT_NAME` |
+| 12 | PEM Key | Generate private key from GitHub App settings → save to `~/.config/agent-harness/{role}.pem` on **both** dev server and runner VM |
+| 13 | .env vars | Add `GITHUB_APP_{ROLE_UPPER}_*` entries to **both** `agent-fishbowl/.env` (dev) and `~/.config/agent-harness/.env` (runner). KEY_PATH must be `~/.config/agent-harness/{role}.pem`. |
+| 13a | Drift check | Run `scripts/check-credentials.sh` to verify PEMs and .env entries match across machines |
 | 14 | Blob container | If agent uploads to blob storage: `az storage container create --account-name agentfishbowlstorage --name {container} --auth-mode login` |
 | 15 | API keys | If agent needs external APIs (Stripe, analytics, etc.): add keys to runner `.env` |
 | 16 | Harness tag | After all harness changes pushed, create new tag: `git tag -a vX.Y.Z -m "..." && git push origin vX.Y.Z` |
