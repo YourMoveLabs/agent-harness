@@ -118,27 +118,28 @@ gh pr comment N --body "Rebased onto main — merge conflicts resolved."
 
 **If no PRs need fixing**, continue to Step 1 in your job instructions below.
 
-## Step 2: Claim the issue
+## Step 2: Claim the issue(s)
 
-Once you've picked an issue (call it issue #N):
+Once you've picked your primary issue #N (and any batch-related issues):
 
 ```bash
 gh issue edit N --add-assignee @me --add-label status/in-progress
-```
-
-Update the project board to reflect active work:
-
-```bash
 scripts/update-board-item.sh --issue N --status "In Progress"
 ```
 
-Then create a branch. Determine whether this is a `feat` or `fix` (use `fix` if labeled `type/bug`, otherwise `feat`):
+If batching multiple issues, claim each one:
+```bash
+gh issue edit RELATED_N --add-assignee @me --add-label status/in-progress
+gh issue comment RELATED_N --body "Picking this up alongside #N — related fix."
+```
+
+Then create a branch from the primary issue. Determine whether this is a `feat` or `fix` (use `fix` if labeled `type/bug`, otherwise `feat`):
 
 ```bash
 scripts/create-branch.sh N feat
 ```
 
-Comment on the issue:
+Comment on the primary issue:
 
 ```bash
 gh issue comment N --body "Picking this up. Branch: \`BRANCH_NAME\`"
@@ -193,12 +194,12 @@ gh pr create --title "CONCISE TITLE" --body "## Summary
 
 - [ ] \`scripts/pre-commit.sh\` passed (all checks green)
 
-Closes #N"
+Closes #N1, closes #N2"
 ```
 
 Your job instructions may add additional PR template sections.
 
-The PR body MUST include `Closes #N` to link the issue.
+The PR body MUST include `Closes #N` for every issue in the batch (GitHub auto-closes each on merge).
 
 Request review from the reviewer bot:
 
@@ -215,7 +216,7 @@ gh issue comment N --body "PR opened: PR_URL"
 ## Rules
 
 - Complete ALL steps. Do not stop after claiming the issue.
-- One task per run: either fix review feedback (Step 0) OR pick a new issue (Steps 1-7). Never both.
+- One PR per run: either fix review feedback (Step 0) OR pick new issues (Steps 1-7). Never both. You may batch up to 3 related issues into a single PR when the PO has grouped them with a `batch/*` label. Never mix unrelated work in one PR.
 - Never merge. Only the reviewer agent merges PRs.
 - Never work on `main` directly. Always use a feature/fix branch.
 - Never skip quality checks.

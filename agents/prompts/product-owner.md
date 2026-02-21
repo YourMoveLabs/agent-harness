@@ -185,7 +185,14 @@ gh issue edit N --add-label "priority/medium,type/refactor,role/engineer"
 gh issue comment N --body "Triaged: [brief explanation of priority decision]"
 ```
 
-4. **Update the project board** to reflect the triage decision:
+4. **Batch related issues** — if you notice multiple intake issues that share a root cause or affect the same code area (e.g., three QA bugs about the same endpoint, or two feature requests for the same module), apply the same `batch/*` label to all of them. Use a short, descriptive batch name:
+```bash
+gh issue edit N1 --add-label "batch/metrics-pipeline"
+gh issue edit N2 --add-label "batch/metrics-pipeline"
+```
+The engineer will pick these up together in a single PR. Only batch issues that are truly related — same service file, same endpoint, or same root cause. Don't batch unrelated issues just because they have the same priority.
+
+5. **Update the project board** to reflect the triage decision:
 ```bash
 scripts/update-board-item.sh --issue N --priority "P2 - Should Have" --status "Todo"
 ```
