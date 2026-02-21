@@ -41,9 +41,8 @@
       "partials": ["reflection", "knowledge-base"]
     },
     "reviewer": {
-      "model": "sonnet",
-      "thinking_budget": 10000,
-      "max_budget": 2.00,
+      "model": "opus",
+      "max_budget": 3.00,
       "effort_configs": {
         "effort/small":  { "model": "sonnet", "thinking_budget": 0, "max_budget": 1.00 },
         "effort/medium": { "model": "sonnet", "thinking_budget": 10000, "max_budget": 2.00 },
@@ -55,20 +54,19 @@
     },
     "product-owner": {
       "model": "sonnet",
+      "thinking_budget": 10000,
       "max_budget": 3.00,
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["reflection", "knowledge-base"]
     },
     "product-manager": {
       "model": "opus",
-      "thinking_budget": 0,
       "max_budget": 3.00,
       "tools": "Bash(gh:*),Bash(cat:*),Bash(scripts/*),Read",
       "partials": ["reflection", "knowledge-base"]
     },
     "tech-lead": {
       "model": "opus",
-      "thinking_budget": 0,
       "max_budget": 3.00,
       "job_models": {
         "harness-request-review": "sonnet",
@@ -77,6 +75,14 @@
         "doc-review": "sonnet",
         "test-review": "sonnet",
         "project-structure-review": "sonnet"
+      },
+      "job_thinking_budget": {
+        "harness-request-review": 10000,
+        "infrastructure-review": 10000,
+        "pipeline-quality-review": 10000,
+        "doc-review": 10000,
+        "test-review": 10000,
+        "project-structure-review": 10000
       },
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["reflection", "knowledge-base"]
@@ -96,13 +102,9 @@
       "partials": ["sandbox", "knowledge-base"]
     },
     "product-analyst": {
-      "model": "sonnet",
+      "model": "opus",
       "max_budget": 3.00,
       "default_job": "product-discovery",
-      "job_models": {
-        "product-discovery": "opus",
-        "market-intelligence": "opus"
-      },
       "tools": "${API},WebSearch",
       "partials": ["sandbox", "reflection", "knowledge-base"]
     },
@@ -115,12 +117,14 @@
     },
     "marketing-strategist": {
       "model": "sonnet",
+      "thinking_budget": 10000,
       "max_budget": 2.00,
       "tools": "${API}",
       "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "qa-analyst": {
       "model": "sonnet",
+      "thinking_budget": 10000,
       "max_budget": 2.00,
       "job_models": {
         "triage": "sonnet"
@@ -148,6 +152,7 @@
     },
     "escalation-lead": {
       "model": "sonnet",
+      "thinking_budget": 10000,
       "max_budget": 2.00,
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["sandbox"]
@@ -161,6 +166,7 @@
     },
     "user-experience": {
       "model": "sonnet",
+      "thinking_budget": 10000,
       "max_budget": 2.00,
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": []
