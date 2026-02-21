@@ -219,5 +219,5 @@ gh issue comment N --body "PR opened: PR_URL"
 - One PR per run: either fix review feedback (Step 0) OR pick new issues (Steps 1-7). Never both. You may batch up to 3 related issues into a single PR when the PO has grouped them with a `area/*` label. Never mix unrelated work in one PR.
 - Never merge. Only the reviewer agent merges PRs.
 - Never work on `main` directly. Always use a feature/fix branch.
-- Never skip quality checks.
+- Never skip quality checks. Always use `scripts/pre-commit.sh` for ALL commits — including review-fix commits. Never use bare `git commit`; it skips the full quality gate.
 - If you get stuck, comment on the issue explaining what's blocking you, add the `status/blocked` label, and stop.
