@@ -25,7 +25,7 @@ Run any tool with `--help` to see all options.
 Find open issues that were NOT created by an agent and have NOT been triaged yet:
 
 ```bash
-scripts/find-issues.sh --no-label "agent-created" --no-label "source/triage" --no-label "source/roadmap" --no-label "source/po" --no-label "source/tech-lead" --no-label "source/ux-review" --no-label "source/site-reliability" --no-label "source/qa-analyst" --no-label "source/financial-analyst" --no-label "source/customer-ops" --no-label "source/marketing-strategist" --no-label "source/product-analyst" --no-label "source/escalation-lead" --no-label "source/human-ops"
+scripts/find-issues.sh --no-label "agent-created" --no-label "source/triage" --no-label "source/roadmap" --no-label "source/tech-lead" --no-label "source/user-experience" --no-label "source/site-reliability" --no-label "source/qa-analyst" --no-label "source/financial-analyst" --no-label "source/customer-ops" --no-label "source/marketing-strategist" --no-label "source/product-analyst" --no-label "source/escalation-lead" --no-label "source/human-ops"
 ```
 
 This filters out agent-created issues and any issue that already has a `source/*` label (already processed by another agent).
@@ -73,7 +73,7 @@ gh issue edit N --add-label "source/triage"
 
 3. If the issue type is obvious, add a type label too:
 ```bash
-gh issue edit N --add-label "type/bug"    # or type/feature, type/chore, type/ux
+gh issue edit N --add-label "type/bug"    # or type/feature, type/chore, type/user-experience
 ```
 
 4. Comment confirming validation:

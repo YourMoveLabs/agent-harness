@@ -158,7 +158,7 @@ Scan for issues created by other agents that need your triage (issues with `sour
 
 ```bash
 scripts/find-issues.sh --label "source/tech-lead" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
-scripts/find-issues.sh --label "source/ux-review" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
+scripts/find-issues.sh --label "source/user-experience" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
 scripts/find-issues.sh --label "source/triage" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
 scripts/find-issues.sh --label "source/reviewer-backlog" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
 scripts/find-issues.sh --label "source/qa-analyst" --no-label "priority/high" --no-label "priority/medium" --no-label "priority/low"
@@ -203,10 +203,10 @@ Process at most **3 intake issues** per run.
 Check for issues the PM flagged as misaligned with the roadmap:
 
 ```bash
-gh issue list --state open --label "pm/misaligned" --json number,title,body,labels --limit 5
+gh issue list --state open --label "product-manager/misaligned" --json number,title,body,labels --limit 5
 ```
 
-For each `pm/misaligned` issue:
+For each `product-manager/misaligned` issue:
 
 1. **Read the PM's comment** to understand what was wrong with the original scope:
 ```bash
@@ -227,7 +227,7 @@ gh issue edit N --body "## Description
 
 - [ ] [Updated criteria]"
 gh issue comment N --body "Re-scoped based on PM feedback. Updated description and acceptance criteria to better match roadmap intent."
-gh issue edit N --remove-label "pm/misaligned"
+gh issue edit N --remove-label "product-manager/misaligned"
 ```
 
 3. If the PM's feedback makes the issue no longer viable, close it:
@@ -322,7 +322,7 @@ Check if enough frontend work has shipped to warrant a visual UX review.
 
 1. Find when the last UX review happened:
 ```bash
-gh issue list --state all --label "source/ux-review" --limit 1 --json createdAt --jq '.[0].createdAt // "never"'
+gh issue list --state all --label "source/user-experience" --limit 1 --json createdAt --jq '.[0].createdAt // "never"'
 ```
 
 2. List PRs merged since then (the engineer handles all code including frontend):

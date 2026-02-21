@@ -133,7 +133,7 @@ Then POST the new entry to the blog index API:
 curl -s -X POST "https://api.agentfishbowl.com/api/fishbowl/blog" \
   -H "Content-Type: application/json" \
   -H "X-Ingest-Key: $INGEST_API_KEY" \
-  -d '{"id":"TODAY-SEO_SLUG","title":"SEO_TITLE","slug":"SEO_SLUG","description":"SEO_DESC","published_at":"TIMESTAMP","focus_keyphrase":"FOCUS_KEYPHRASE","author":"Fishbowl Writer","preview_url":"PREVIEW_URL"}'
+  -d '{"id":"TODAY-SEO_SLUG","title":"SEO_TITLE","slug":"SEO_SLUG","description":"SEO_DESC","published_at":"TIMESTAMP","focus_keyphrase":"FOCUS_KEYPHRASE","author":"Fishbowl Content Creator","preview_url":"PREVIEW_URL"}'
 ```
 
 If the blog index update fails, log it but continue to Step 6.

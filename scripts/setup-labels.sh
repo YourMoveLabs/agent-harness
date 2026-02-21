@@ -34,12 +34,12 @@ ensure_label "type/feature"     "0e8a16" "New functionality"
 ensure_label "type/bug"         "d73a4a" "Something broken"
 ensure_label "type/chore"       "cccccc" "Maintenance, CI, docs"
 ensure_label "type/refactor"    "7057ff" "Code refactoring or architecture improvement"
-ensure_label "type/ux"          "f9d0c4" "User experience improvement"
+ensure_label "type/user-experience"          "f9d0c4" "User experience improvement"
 
 # Source labels (which agent created the intake)
 ensure_label "source/roadmap"          "c5def5" "From product roadmap"
 ensure_label "source/tech-lead"        "d4c5f9" "From tech lead code review"
-ensure_label "source/ux-review"        "f9d0c4" "From UX agent review"
+ensure_label "source/user-experience"        "f9d0c4" "From user-experience agent"
 ensure_label "source/triage"           "c2e0c6" "Validated by triage agent"
 ensure_label "source/reviewer-backlog" "fef2c0" "Rework from closed PR"
 ensure_label "source/site-reliability"  "d73a4a" "From Site Reliability monitoring"
@@ -54,7 +54,7 @@ ensure_label "review/approved"           "0e8a16" "Reviewer approved this PR"
 ensure_label "review/changes-requested"  "e4e669" "Reviewer requested changes"
 
 # PM feedback labels
-ensure_label "pm/misaligned"    "d876e3" "PM flagged: issue misinterprets roadmap intent"
+ensure_label "product-manager/misaligned"    "d876e3" "Product Manager flagged: issue misinterprets roadmap intent"
 
 # Harness labels
 ensure_label "harness/request"  "ff9800" "Agent needs a harness capability (tool, permission, config)"
