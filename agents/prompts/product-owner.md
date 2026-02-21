@@ -191,7 +191,16 @@ gh issue edit N --add-label "area/stats-endpoints"
 ```
 When multiple issues share an area label, the engineer will pick them up together in a single PR. Reuse existing area labels when they fit — don't create a new one if an existing label already describes the same code area.
 
-5. **Update the project board** to reflect the triage decision:
+5. **Estimate effort** — apply an `effort/*` label based on expected scope:
+   - `effort/small` — Single file, config change, typo, simple bug fix
+   - `effort/medium` — Multiple files, moderate logic, standard feature work
+   - `effort/large` — Complex logic, architecture changes, multi-service coordination
+   This label determines which model and reasoning depth the engineer uses. When in doubt, label `effort/medium` — it's the safe middle ground.
+```bash
+gh issue edit N --add-label "effort/medium"
+```
+
+6. **Update the project board** to reflect the triage decision:
 ```bash
 scripts/update-board-item.sh --issue N --priority "P2 - Should Have" --status "Todo"
 ```

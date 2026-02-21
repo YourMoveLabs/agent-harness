@@ -73,6 +73,22 @@ else
     MODEL=$(echo "$ROLE_CONFIG" | jq -r '.config.model // empty')
 fi
 
+# Resolve thinking budget: job-level > role-level > unset (CLI default: ON, 31999 tokens)
+if [ -n "$JOB" ]; then
+    THINKING_BUDGET=$(echo "$ROLE_CONFIG" | jq -r --arg j "$JOB" '.config.job_thinking_budget[$j] // .config.thinking_budget // empty')
+else
+    THINKING_BUDGET=$(echo "$ROLE_CONFIG" | jq -r '.config.thinking_budget // empty')
+fi
+
+# Resolve effort level (Opus 4.6 adaptive thinking depth: low/medium/high)
+EFFORT_LEVEL=$(echo "$ROLE_CONFIG" | jq -r '.config.effort_level // empty')
+
+# Resolve max budget (USD cap per invocation)
+MAX_BUDGET=$(echo "$ROLE_CONFIG" | jq -r '.config.max_budget // empty')
+
+# Check if this role supports dynamic effort-based configuration
+HAS_EFFORT_CONFIGS=$(echo "$ROLE_CONFIG" | jq -r 'if .config.effort_configs then "true" else "false" end')
+
 PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
 PROMPT_FILE="$HARNESS_ROOT/agents/prompts/${PROMPT_ROLE}.md"
 LOG_DIR="${AGENT_LOG_DIR:-/tmp/agent-logs}"
@@ -142,6 +158,47 @@ else
     echo "  Need: ${APP_ID_VAR}, ${APP_INSTALL_VAR}, ${APP_KEY_VAR} in .env"
 fi
 
+# --- Dynamic effort configuration (engineer, reviewer) ---
+# Pre-screen the issue queue to read effort/* labels and override model/thinking.
+if [ "$HAS_EFFORT_CONFIGS" = "true" ] && [ -n "${GH_TOKEN:-}" ]; then
+    echo "Pre-screening issues for effort label..."
+
+    PEEK_ISSUES=$(bash "$HARNESS_ROOT/scripts/find-issues.sh" \
+        --unassigned \
+        --label "role/${PARENT_ROLE}" \
+        --no-label "status/blocked" \
+        --no-label "status/awaiting-merge" \
+        --sort priority 2>/dev/null || echo "[]")
+
+    EFFORT_LABEL=$(echo "$PEEK_ISSUES" | jq -r '
+        .[0].labels // [] | map(select(startswith("effort/"))) | .[0] // empty
+    ')
+
+    if [ -n "$EFFORT_LABEL" ]; then
+        echo "Effort label detected: $EFFORT_LABEL (issue #$(echo "$PEEK_ISSUES" | jq -r '.[0].number'))"
+
+        EFFORT_OVERRIDE=$(echo "$ROLE_CONFIG" | jq -c --arg e "$EFFORT_LABEL" '.config.effort_configs[$e] // empty')
+
+        if [ -n "$EFFORT_OVERRIDE" ] && [ "$EFFORT_OVERRIDE" != "null" ]; then
+            OVERRIDE_MODEL=$(echo "$EFFORT_OVERRIDE" | jq -r '.model // empty')
+            [ -n "$OVERRIDE_MODEL" ] && MODEL="$OVERRIDE_MODEL"
+
+            OVERRIDE_TB=$(echo "$EFFORT_OVERRIDE" | jq -r '.thinking_budget // empty')
+            [ -n "$OVERRIDE_TB" ] && THINKING_BUDGET="$OVERRIDE_TB"
+
+            OVERRIDE_EL=$(echo "$EFFORT_OVERRIDE" | jq -r '.effort_level // empty')
+            [ -n "$OVERRIDE_EL" ] && EFFORT_LEVEL="$OVERRIDE_EL"
+
+            OVERRIDE_MB=$(echo "$EFFORT_OVERRIDE" | jq -r '.max_budget // empty')
+            [ -n "$OVERRIDE_MB" ] && MAX_BUDGET="$OVERRIDE_MB"
+
+            echo "Applied effort override: model=$MODEL thinking=${THINKING_BUDGET:-default} effort=${EFFORT_LEVEL:-default} budget=${MAX_BUDGET:-none}"
+        fi
+    else
+        echo "No effort label on first issue — using role defaults"
+    fi
+fi
+
 echo ""
 echo "=== Agent: ${ROLE}${JOB:+ (job: $JOB)} ==="
 if [ -n "$JOB" ]; then
@@ -179,6 +236,11 @@ if [ -n "$MODEL" ]; then
     echo "Model: $MODEL"
 else
     echo "Model: (CLI default)"
+fi
+echo "Thinking: ${THINKING_BUDGET:-default (on)}"
+echo "Effort level: ${EFFORT_LEVEL:-default}"
+if [ -n "$MAX_BUDGET" ]; then
+    echo "Budget cap: \$${MAX_BUDGET}"
 fi
 
 # Run Claude in non-interactive mode with the role prompt.
@@ -238,6 +300,21 @@ if [ -n "$MODEL" ]; then
     MODEL_FLAGS+=(--model "$MODEL")
 fi
 
+# Set thinking budget env var (0=off, N=custom, unset=default ON)
+if [ -n "$THINKING_BUDGET" ]; then
+    export MAX_THINKING_TOKENS="$THINKING_BUDGET"
+fi
+
+# Set effort level env var (Opus 4.6 adaptive thinking depth)
+if [ -n "$EFFORT_LEVEL" ]; then
+    export CLAUDE_CODE_EFFORT_LEVEL="$EFFORT_LEVEL"
+fi
+
+# Budget cap (USD)
+if [ -n "$MAX_BUDGET" ]; then
+    MODEL_FLAGS+=(--max-budget-usd "$MAX_BUDGET")
+fi
+
 claude -p "$PROMPT_TEXT" \
     --allowedTools "$ALLOWED_TOOLS" \
     --output-format json \
@@ -255,6 +332,9 @@ if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then
       role: $role,
       job: $job,
       model: $model,
+      thinking_budget: $thinking_budget,
+      effort_level: $effort_level,
+      max_budget: $max_budget,
       total_cost_usd: .total_cost_usd,
       duration_ms: .duration_ms,
       duration_api_ms: .duration_api_ms,
@@ -267,6 +347,9 @@ if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then
       --arg role "$ROLE" \
       --arg job "${JOB:-}" \
       --arg model "${MODEL:-default}" \
+      --arg thinking_budget "${THINKING_BUDGET:-default}" \
+      --arg effort_level "${EFFORT_LEVEL:-default}" \
+      --arg max_budget "${MAX_BUDGET:-}" \
       --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       "$RAW_OUTPUT" > "$USAGE_FILE"
 

@@ -1,5 +1,13 @@
 {
   "_doc": "Central role configuration for all fishbowl agents. Used by agents/run-agent.sh.",
+  "_doc_fields": {
+    "model": "Claude model alias: opus or sonnet",
+    "thinking_budget": "MAX_THINKING_TOKENS: 0=off, N=custom budget, omit=default ON (31999 for sonnet, adaptive for opus)",
+    "effort_level": "CLAUDE_CODE_EFFORT_LEVEL for Opus 4.6 adaptive thinking: low/medium/high",
+    "max_budget": "USD cap per invocation via --max-budget-usd",
+    "effort_configs": "Maps effort/* issue labels to model/thinking/budget overrides for dynamic right-sizing",
+    "job_thinking_budget": "Per-job thinking_budget override (same pattern as job_models)"
+  },
   "_tool_presets": {
     "COMMON": "Bash(gh:*),Bash(git:*),Bash(cat:*),Read,Glob,Grep",
     "API": "Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep"
@@ -7,34 +15,56 @@
   "roles": {
     "engineer": {
       "model": "opus",
+      "thinking_budget": 0,
+      "effort_level": "high",
+      "max_budget": 5.00,
+      "effort_configs": {
+        "effort/small":  { "model": "sonnet", "thinking_budget": 0, "max_budget": 1.50 },
+        "effort/medium": { "model": "sonnet", "thinking_budget": 10000, "max_budget": 3.00 },
+        "effort/large":  { "model": "opus", "thinking_budget": 0, "effort_level": "high", "max_budget": 5.00 }
+      },
       "tools": "Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Bash(cat:*),Bash(chmod:*),Read,Write,Edit,Glob,Grep",
       "default_job": "default",
       "partials": ["reflection", "knowledge-base"]
     },
     "ops-engineer": {
       "model": "sonnet",
+      "thinking_budget": 0,
+      "max_budget": 1.00,
       "default_job": "operations",
       "tools": "Bash(az:*),Bash(curl:*),Bash(python3:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep",
       "partials": ["reflection", "knowledge-base"]
     },
     "reviewer": {
       "model": "opus",
+      "thinking_budget": 0,
+      "max_budget": 3.00,
+      "effort_configs": {
+        "effort/small":  { "model": "sonnet", "thinking_budget": 0, "max_budget": 1.00 },
+        "effort/medium": { "model": "sonnet", "thinking_budget": 10000, "max_budget": 2.00 },
+        "effort/large":  { "model": "opus", "thinking_budget": 0, "max_budget": 3.00 }
+      },
       "tools": "${COMMON},Bash(scripts/*)",
       "default_job": "deep-review",
       "partials": ["reflection", "knowledge-base"]
     },
     "product-owner": {
-      "model": "opus",
+      "model": "sonnet",
+      "max_budget": 3.00,
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["reflection", "knowledge-base"]
     },
     "product-manager": {
       "model": "opus",
+      "thinking_budget": 0,
+      "max_budget": 3.00,
       "tools": "Bash(gh:*),Bash(cat:*),Bash(scripts/*),Read",
       "partials": ["reflection", "knowledge-base"]
     },
     "tech-lead": {
       "model": "opus",
+      "thinking_budget": 0,
+      "max_budget": 3.00,
       "job_models": {
         "harness-request-review": "sonnet",
         "infrastructure-review": "sonnet",
@@ -48,16 +78,21 @@
     },
     "site-reliability": {
       "model": "sonnet",
+      "thinking_budget": 0,
+      "max_budget": 1.00,
       "tools": "Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(python3:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read",
       "partials": []
     },
     "content-creator": {
       "model": "opus",
+      "thinking_budget": 0,
+      "max_budget": 3.00,
       "tools": "${API},Bash(sleep:*),Bash(echo:*)",
       "partials": ["sandbox", "knowledge-base"]
     },
     "product-analyst": {
       "model": "sonnet",
+      "max_budget": 3.00,
       "default_job": "product-discovery",
       "job_models": {
         "product-discovery": "opus",
@@ -68,18 +103,25 @@
     },
     "financial-analyst": {
       "model": "sonnet",
+      "thinking_budget": 0,
+      "max_budget": 1.50,
       "tools": "${API}",
       "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "marketing-strategist": {
-      "model": "opus",
+      "model": "sonnet",
+      "max_budget": 2.00,
       "tools": "${API}",
       "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "qa-analyst": {
-      "model": "opus",
+      "model": "sonnet",
+      "max_budget": 2.00,
       "job_models": {
         "triage": "sonnet"
+      },
+      "job_thinking_budget": {
+        "triage": 0
       },
       "tools": "Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Bash(echo:*),Read,Glob,Grep",
       "default_job": "default",
@@ -87,26 +129,34 @@
     },
     "customer-ops": {
       "model": "sonnet",
+      "thinking_budget": 0,
+      "max_budget": 1.00,
       "tools": "${API}",
       "partials": ["sandbox"]
     },
     "human-ops": {
       "model": "sonnet",
+      "thinking_budget": 0,
+      "max_budget": 1.00,
       "tools": "${API}",
       "partials": ["sandbox"]
     },
     "escalation-lead": {
-      "model": "opus",
+      "model": "sonnet",
+      "max_budget": 2.00,
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": ["sandbox"]
     },
     "triage": {
       "model": "sonnet",
+      "thinking_budget": 0,
+      "max_budget": 1.00,
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": []
     },
     "user-experience": {
-      "model": "opus",
+      "model": "sonnet",
+      "max_budget": 2.00,
       "tools": "${COMMON},Bash(scripts/*)",
       "partials": []
     }
