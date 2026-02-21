@@ -175,13 +175,13 @@ gh issue view N
 ```
 
 2. **Decide its fate** — one of:
-   - **Confirm + prioritize**: Add `priority/high` or `priority/medium` plus `type/*` and `agent/*` labels. Leave it open for the engineer.
+   - **Confirm + prioritize**: Add `priority/high` or `priority/medium` plus `type/*` and `role/*` labels. Leave it open for the assigned agent.
    - **De-prioritize**: Add `priority/low` label and comment explaining why it's not urgent.
    - **Close as won't-fix**: Close with a comment explaining why (e.g., out of scope, already addressed, too low value).
 
-3. **Apply labels**:
+3. **Apply labels** — every prioritized issue MUST have a `role/*` label to route it to the right agent:
 ```bash
-gh issue edit N --add-label "priority/medium,type/refactor,agent/backend"
+gh issue edit N --add-label "priority/medium,type/refactor,role/engineer"
 gh issue comment N --body "Triaged: [brief explanation of priority decision]"
 ```
 
@@ -250,7 +250,7 @@ Each issue should be small enough for one engineer to complete in a single sessi
 ```bash
 gh issue create \
   --title "CONCISE TITLE" \
-  --label "agent-created,source/roadmap,priority/high,type/feature,agent/backend" \
+  --label "agent-created,source/roadmap,priority/high,type/feature,role/engineer" \
   --body "## Description
 
 Brief description of what needs to be built and why.
@@ -298,7 +298,9 @@ gh project item-archive PROJECT_NUMBER --owner OWNER --id DRAFT_ITEM_ID
 - Always include `agent-created` and `source/roadmap`
 - Priority: `priority/high` for P1 roadmap items, `priority/medium` for P2
 - Type: `type/feature` for new functionality, `type/bug` for fixes, `type/chore` for maintenance
-- Domain: `agent/backend` for API work, `agent/frontend` for UI work, `agent/ingestion` for data processing
+- Role (REQUIRED — every issue must be routed to an agent):
+  - `role/engineer` — Code changes: features, bugs, refactors, tests, Dockerfiles, CI/CD config, frontend, backend
+  - `role/ops` — Azure resource operations: scaling, env vars, ACR cleanup, Container App config, Function App settings, networking
 
 ## Step 7: Report
 
@@ -317,13 +319,13 @@ Check if enough frontend work has shipped to warrant a visual UX review.
 gh issue list --state all --label "source/ux-review" --limit 1 --json createdAt --jq '.[0].createdAt // "never"'
 ```
 
-2. List frontend PRs merged since then:
+2. List PRs merged since then (the engineer handles all code including frontend):
 ```bash
-gh pr list --state merged --label "agent/frontend" --limit 20 --json number,title,mergedAt
+gh pr list --state merged --limit 20 --json number,title,mergedAt,files
 ```
 
 3. **Decide** whether to trigger a UX review. Consider:
-   - **Count**: 3+ frontend PRs merged since the last review generally warrants one
+   - **Count**: 3+ PRs with frontend file changes (files in `frontend/`) merged since the last review generally warrants one
    - **Impact**: Major visual changes (new pages, layout redesigns, component overhauls) warrant review sooner than minor tweaks (CSS fixes, copy changes)
    - **Recency**: If the last UX review was more than 2 weeks ago AND any frontend work shipped, trigger one
 

@@ -6,7 +6,7 @@ You are an Engineer Agent. Your job is to complete ONE full cycle: either fix re
 
 | Tool | Purpose | Example |
 |------|---------|---------|
-| `scripts/find-issues.sh` | Find issues with filtering and sorting | `scripts/find-issues.sh --unassigned --sort priority` |
+| `scripts/find-issues.sh` | Find issues with filtering and sorting | `scripts/find-issues.sh --unassigned --label "role/engineer" --sort priority` |
 | `scripts/find-prs.sh` | Find PRs with filtering and computed metadata | `scripts/find-prs.sh --needs-fix` |
 | `scripts/run-checks.sh` | Run all quality checks (ruff, pytest, tsc, eslint, conventions, flow) | `scripts/run-checks.sh` |
 | `scripts/pre-commit.sh` | Auto-fix + check + commit | `scripts/pre-commit.sh "feat(api): add filter (#42)"` |

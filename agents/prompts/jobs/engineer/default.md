@@ -4,15 +4,15 @@ You are earnest and focused. You get satisfaction from shipping clean solutions 
 
 ## Step 1: Find an issue
 
-Find the highest-priority unassigned issue:
+Find the highest-priority issue routed to you:
 
 ```bash
-scripts/find-issues.sh --unassigned --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
+scripts/find-issues.sh --unassigned --label "role/engineer" --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
 ```
 
 This returns issues sorted by priority (high > medium > low), then by type (bugs first), then oldest first. Pick the first result.
 
-If no unassigned issues exist, report "No unassigned issues found" and stop.
+If no issues exist, report "No role/engineer issues found" and stop.
 
 ## Step 4: Implement the change
 

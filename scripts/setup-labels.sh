@@ -20,10 +20,9 @@ ensure_label() {
     fi
 }
 
-# Domain labels (which agent handles it)
-ensure_label "agent/frontend"   "1d76db" "Frontend work (React, Tailwind, pages)"
-ensure_label "agent/backend"    "0075ca" "Backend work (FastAPI, services, models)"
-ensure_label "agent/ingestion"  "6f42c1" "Article ingestion and processing"
+# Role routing labels (which agent handles it)
+ensure_label "role/engineer"    "0e8a16" "Routed to engineer agent for implementation"
+ensure_label "role/ops"         "1d76db" "Routed to ops-engineer agent for Azure operations"
 
 # Priority labels
 ensure_label "priority/high"    "d73a4a" "Do first"
