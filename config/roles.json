@@ -58,7 +58,12 @@
     },
     "product-analyst": {
       "model": "sonnet",
-      "tools": "${API}",
+      "default_job": "product-discovery",
+      "job_models": {
+        "product-discovery": "opus",
+        "market-intelligence": "opus"
+      },
+      "tools": "${API},WebSearch",
       "partials": ["sandbox", "reflection", "knowledge-base"]
     },
     "financial-analyst": {
