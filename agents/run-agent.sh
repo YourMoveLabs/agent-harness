@@ -310,7 +310,13 @@ fi
 export PROMPT_TEXT ALLOWED_TOOLS MODEL THINKING_BUDGET EFFORT_LEVEL MAX_BUDGET RAW_OUTPUT LOG_FILE
 
 source "$PROVIDER_SCRIPT"
-EXIT_CODE=${PROVIDER_EXIT_CODE:-$?}
+
+# Verify adapter set the exit code (contract requirement)
+if [ -z "${PROVIDER_EXIT_CODE+x}" ]; then
+    echo "ERROR: Provider '$PROVIDER' did not set PROVIDER_EXIT_CODE"
+    exit 1
+fi
+EXIT_CODE=$PROVIDER_EXIT_CODE
 
 # Extract the text result for human-readable log (same as --print output)
 if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then
@@ -349,7 +355,7 @@ if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then
     echo ""
 else
     # Fallback: JSON parsing failed, save raw output as the log
-    echo "WARNING: Could not parse Claude JSON output — saving raw output"
+    echo "WARNING: Could not parse provider JSON output — saving raw output"
     cp "$RAW_OUTPUT" "$LOG_FILE" 2>/dev/null || true
 fi
 

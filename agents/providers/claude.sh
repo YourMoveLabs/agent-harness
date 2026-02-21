@@ -11,7 +11,17 @@
 #   RAW_OUTPUT       - Path to write JSON output
 #   LOG_FILE         - Path prefix for log files (.stderr appended)
 #
-# Output: Writes structured JSON to RAW_OUTPUT, returns exit code via PROVIDER_EXIT_CODE.
+# Output contract (all adapters must follow this):
+#   PROVIDER_EXIT_CODE  - Must be set to the CLI tool's exit code (0=success)
+#   RAW_OUTPUT file     - Must contain JSON with these fields:
+#     .result           - Text output (string)
+#     .total_cost_usd   - Cost in USD (number or null)
+#     .duration_ms      - Total wall time in ms (number or null)
+#     .duration_api_ms  - API-only time in ms (number or null)
+#     .num_turns        - Agent turn count (number or null)
+#     .session_id       - Session identifier (string or null)
+#     .usage            - Token usage breakdown (object or null)
+#     .modelUsage       - Per-model usage breakdown (object or null)
 
 # --- Claude-specific environment ---
 if [ -n "$THINKING_BUDGET" ]; then
