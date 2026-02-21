@@ -295,33 +295,22 @@ $(cat "$PARTIAL_FILE")"
     fi
 done
 
-MODEL_FLAGS=()
-if [ -n "$MODEL" ]; then
-    MODEL_FLAGS+=(--model "$MODEL")
+# --- Provider dispatch ---
+PROVIDER=$(echo "$ROLE_CONFIG" | jq -r '.config.provider // "claude"')
+echo "Provider: $PROVIDER"
+
+PROVIDER_SCRIPT="$HARNESS_ROOT/agents/providers/${PROVIDER}.sh"
+if [ ! -f "$PROVIDER_SCRIPT" ]; then
+    echo "ERROR: Unknown provider '$PROVIDER'. Available:"
+    ls "$HARNESS_ROOT/agents/providers/"*.sh 2>/dev/null | xargs -I {} basename {} .sh
+    exit 1
 fi
 
-# Set thinking budget env var (0=off, N=custom, unset=default ON)
-if [ -n "$THINKING_BUDGET" ]; then
-    export MAX_THINKING_TOKENS="$THINKING_BUDGET"
-fi
+# Export variables for the provider adapter
+export PROMPT_TEXT ALLOWED_TOOLS MODEL THINKING_BUDGET EFFORT_LEVEL MAX_BUDGET RAW_OUTPUT LOG_FILE
 
-# Set effort level env var (Opus 4.6 adaptive thinking depth)
-if [ -n "$EFFORT_LEVEL" ]; then
-    export CLAUDE_CODE_EFFORT_LEVEL="$EFFORT_LEVEL"
-fi
-
-# Budget cap (USD)
-if [ -n "$MAX_BUDGET" ]; then
-    MODEL_FLAGS+=(--max-budget-usd "$MAX_BUDGET")
-fi
-
-claude -p "$PROMPT_TEXT" \
-    --allowedTools "$ALLOWED_TOOLS" \
-    --output-format json \
-    "${MODEL_FLAGS[@]}" \
-    2>"$LOG_FILE.stderr" | tee "$RAW_OUTPUT"
-
-EXIT_CODE=${PIPESTATUS[0]}
+source "$PROVIDER_SCRIPT"
+EXIT_CODE=${PROVIDER_EXIT_CODE:-$?}
 
 # Extract the text result for human-readable log (same as --print output)
 if [ -f "$RAW_OUTPUT" ] && jq -e '.result' "$RAW_OUTPUT" >/dev/null 2>&1; then

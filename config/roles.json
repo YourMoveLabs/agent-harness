@@ -6,7 +6,13 @@
     "effort_level": "CLAUDE_CODE_EFFORT_LEVEL for Opus 4.6 adaptive thinking: low/medium/high",
     "max_budget": "USD cap per invocation via --max-budget-usd",
     "effort_configs": "Maps effort/* issue labels to model/thinking/budget overrides for dynamic right-sizing",
-    "job_thinking_budget": "Per-job thinking_budget override (same pattern as job_models)"
+    "job_thinking_budget": "Per-job thinking_budget override (same pattern as job_models)",
+    "provider": "CLI provider: claude (default) or codex. Resolved from _provider_defaults."
+  },
+  "_provider_defaults": {
+    "claude": {
+      "models": { "large": "opus", "small": "sonnet" }
+    }
   },
   "_tool_presets": {
     "COMMON": "Bash(gh:*),Bash(git:*),Bash(cat:*),Read,Glob,Grep",
