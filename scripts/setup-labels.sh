@@ -16,9 +16,9 @@ ensure_label() {
         || echo "  FAILED: $name"
 }
 
-# Role routing labels (which agent handles it)
-ensure_label "role/engineer"    "0e8a16" "Routed to engineer agent for implementation"
-ensure_label "role/ops"         "1d76db" "Routed to ops-engineer agent for Azure operations"
+# Role categorization labels (NOT used for routing — use assigned/* labels)
+ensure_label "role/engineer"    "0e8a16" "Categorization: code change (routing uses assigned/engineer)"
+ensure_label "role/ops"         "1d76db" "Categorization: Azure operations (routing uses assigned/ops)"
 
 # Priority labels
 ensure_label "priority/high"    "d73a4a" "Do first"

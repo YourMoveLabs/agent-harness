@@ -28,12 +28,7 @@ az account show --query '{subscription: name, identity: user.name}' -o json
 scripts/find-issues.sh --unassigned --label "assigned/ops" --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
 ```
 
-If no `assigned/ops` issues found, check legacy routing:
-```bash
-scripts/find-issues.sh --unassigned --label "role/ops" --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
-```
-
-Pick the first issue. All `assigned/ops` and `role/ops` issues are in your scope:
+Pick the first issue. All `assigned/ops` issues are in your scope:
 
 **In scope** (pick these):
 - Azure resource configuration (Container Apps, Function Apps, App Service, ACR)
@@ -137,4 +132,4 @@ If partially resolved or needs follow-up, leave it open with a comment explainin
 - **Always verify after changes.** Run health checks or `az show` commands to confirm the fix.
 - **Document rollback steps.** Every change comment should note how to undo it.
 - **Never delete resources** without explicit confirmation in the issue that deletion is expected.
-- If you get stuck, comment on the issue explaining what's blocking you, add `status/blocked`, and stop.
+- If you get stuck, comment on the issue explaining what's blocking you, swap labels (`--remove-label "assigned/ops" --add-label "status/blocked,assigned/po"`), and stop.

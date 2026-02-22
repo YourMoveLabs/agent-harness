@@ -10,11 +10,6 @@ Find the highest-priority issues assigned to you:
 scripts/find-issues.sh --unassigned --label "assigned/engineer" --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
 ```
 
-If no `assigned/engineer` issues found, check legacy routing:
-```bash
-scripts/find-issues.sh --unassigned --label "role/engineer" --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
-```
-
 This returns issues sorted by priority (high > medium > low), then by type (bugs first), then oldest first. Pick the first result as your **primary issue**.
 
 ### Check for related issues in the same area

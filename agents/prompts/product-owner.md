@@ -54,6 +54,22 @@ Also check what's in flight:
 gh pr list --state open --json number,title --limit 10
 ```
 
+### Fix orphan issues
+
+Check for open issues that have a `priority/*` label but no `assigned/*` label (orphans from before the assignment system):
+
+```bash
+gh issue list --state open --json number,title,labels --jq '[.[] | select(
+  (.labels | map(.name) | any(test("^priority/"))) and
+  (.labels | map(.name) | any(test("^assigned/")) | not)
+)] | .[:5] | .[] | "#\(.number) \(.title) [\(.labels | map(.name) | join(", "))]"'
+```
+
+For each orphan (process at most **5 per run**), assign based on existing labels:
+- Has `role/ops` → `gh issue edit N --add-label "assigned/ops"`
+- Has `harness/request` → `gh issue edit N --add-label "assigned/human"`
+- Otherwise → `gh issue edit N --add-label "assigned/engineer"` (default)
+
 ## Step 2.5: Read the room
 
 Before processing intake, understand the competing pressures you're navigating:
@@ -93,32 +109,32 @@ gh issue view N --comments
 
 2. **Route based on block type**:
 
-   - **`harness/request` label or block requires human action** (GitHub App permissions, infrastructure provisioning, API keys, external service setup): Assign to the human board member. Leave `status/blocked` in place.
+   - **`harness/request` label or block requires human action** (GitHub App permissions, infrastructure provisioning, API keys, external service setup): Route to human. Leave `status/blocked` in place.
    ```bash
-   gh issue edit N --add-assignee fbomb111
+   gh issue edit N --remove-label "assigned/engineer,assigned/ops,assigned/po" --add-label "assigned/human" --add-assignee fbomb111
    gh issue comment N --body "Routing to human — this requires [brief description of what the human needs to do]. Leaving blocked until resolved."
    ```
 
-   - **Blocked by another issue** (comments reference a specific issue number): Check if that issue is closed. If closed, unblock. If still open, ensure the blocking issue has appropriate priority so it gets worked on.
+   - **Blocked by another issue** (comments reference a specific issue number): Check if that issue is closed. If closed, unblock and route back to engineer. If still open, ensure the blocking issue has appropriate priority so it gets worked on.
    ```bash
    # Check if blocking issue is resolved
    gh issue view BLOCKING_NUMBER --json state --jq '.state'
-   # If CLOSED → unblock
-   gh issue edit N --remove-label "status/blocked"
-   gh issue comment N --body "Unblocking — #BLOCKING_NUMBER is now closed."
+   # If CLOSED → unblock and route back to engineer
+   gh issue edit N --remove-label "status/blocked,assigned/po" --add-label "assigned/engineer"
+   gh issue comment N --body "Unblocking — #BLOCKING_NUMBER is now closed. Routing back to engineer."
    # If OPEN → ensure it has priority
    gh issue edit BLOCKING_NUMBER --add-label "priority/medium"
    ```
 
-   - **Blocked by an agent's incomplete work** (e.g., "waiting for engineer to push", "needs reviewer approval"): Ensure the issue has the right `agent/*` label and priority so the responsible agent picks it up next run. Comment noting who needs to act.
+   - **Blocked by an agent's incomplete work** (e.g., "waiting for engineer to push", "needs reviewer approval"): Ensure the issue has the correct `assigned/*` label for the responsible agent, remove `status/blocked`, and set priority so it gets picked up.
    ```bash
-   gh issue comment N --body "Block is on [agent role] — ensuring priority is set so it gets picked up."
-   gh issue edit N --add-label "priority/medium"
+   gh issue edit N --remove-label "status/blocked,assigned/po" --add-label "assigned/engineer,priority/medium"
+   gh issue comment N --body "Block is on [agent role] — routing back and ensuring priority is set."
    ```
 
-   - **Can't determine block type from issue and comments alone**: Assign to the human for triage.
+   - **Can't determine block type from issue and comments alone**: Route to the human for triage.
    ```bash
-   gh issue edit N --add-assignee fbomb111
+   gh issue edit N --remove-label "assigned/engineer,assigned/ops,assigned/po" --add-label "assigned/human" --add-assignee fbomb111
    gh issue comment N --body "Routing to human — block reason is unclear from the issue history. Needs manual investigation."
    ```
 
@@ -139,7 +155,7 @@ For each (process at most **2 per run**):
 
 ```bash
 # Human responded — send back to Triage
-gh issue edit N --remove-label "status/needs-info" --add-label "source/triage"
+gh issue edit N --remove-label "status/needs-info" --add-label "source/triage,assigned/triage"
 gh issue comment N --body "Human responded — sending back to Triage for re-evaluation."
 
 # Stale — close
@@ -179,9 +195,9 @@ gh issue view N
    - **De-prioritize**: Add `priority/low` label and comment explaining why it's not urgent.
    - **Close as won't-fix**: Close with a comment explaining why (e.g., out of scope, already addressed, too low value).
 
-3. **Apply labels** — every prioritized issue MUST have both a `role/*` label (categorization) and an `assigned/*` label (whose turn it is):
+3. **Apply labels** — every prioritized issue MUST have both a `role/*` label (categorization) and an `assigned/*` label (whose turn it is). **Assignment handoff**: When you triage an issue, you are handing it off. Always remove `assigned/po` and add the appropriate `assigned/*` label for the next agent. This is how the pipeline knows the PO is done with this issue.
 ```bash
-gh issue edit N --add-label "priority/medium,type/refactor,role/engineer,assigned/engineer"
+gh issue edit N --remove-label "assigned/po" --add-label "priority/medium,type/refactor,role/engineer,assigned/engineer"
 gh issue comment N --body "Triaged: [brief explanation of priority decision]"
 ```
 

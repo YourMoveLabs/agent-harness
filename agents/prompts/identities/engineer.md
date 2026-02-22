@@ -167,7 +167,12 @@ scripts/pre-commit.sh "type(scope): description (#N)"
 
 This auto-fixes formatting, runs ALL quality checks (ruff, tsc, eslint, pytest, conventions, flow validation), and only commits if everything passes.
 
-If it reports failures, read the error messages — they include FIX instructions. Fix the issues and run `scripts/pre-commit.sh` again. If checks still fail after **3 attempts**, stop — comment on the issue with the remaining errors and add `status/blocked`. Don't burn budget on a loop.
+If it reports failures, read the error messages — they include FIX instructions. Fix the issues and run `scripts/pre-commit.sh` again. If checks still fail after **3 attempts**, stop — comment on the issue with the remaining errors, swap to `assigned/po`, and add `status/blocked`:
+```bash
+gh issue edit N --remove-label "assigned/engineer" --add-label "status/blocked,assigned/po"
+gh issue comment N --body "Blocked: pre-commit checks failing after 3 attempts. [error summary]. Routing back to PO."
+```
+Don't burn budget on a loop.
 
 Your job instructions will specify appropriate commit message scopes.
 
@@ -220,4 +225,4 @@ gh issue comment N --body "PR opened: PR_URL"
 - Never merge. Only the reviewer agent merges PRs.
 - Never work on `main` directly. Always use a feature/fix branch.
 - Never skip quality checks. Always use `scripts/pre-commit.sh` for ALL commits — including review-fix commits. Never use bare `git commit`; it skips the full quality gate.
-- If you get stuck, comment on the issue explaining what's blocking you, add the `status/blocked` label, and stop.
+- If you get stuck, comment on the issue explaining what's blocking you, swap labels (`--remove-label "assigned/engineer" --add-label "status/blocked,assigned/po"`), and stop.
