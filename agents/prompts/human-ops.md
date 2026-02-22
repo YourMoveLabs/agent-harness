@@ -68,7 +68,7 @@ If it's been a while since the last retro (or never), run one. Look at the last 
 ```bash
 gh issue create \
   --title "VP Human Ops: Team Retro — WEEK_OR_DATE_RANGE" \
-  --label "agent-created,source/human-ops,team-culture" \
+  --label "agent-created,source/human-ops,team-culture,assigned/po" \
   --body "## Team Retrospective
 
 ### What went well
@@ -99,7 +99,7 @@ If something notable was shipped, celebrate it:
 ```bash
 gh issue create \
   --title "VP Human Ops: Celebrating — ACHIEVEMENT_TITLE" \
-  --label "agent-created,source/human-ops,team-culture" \
+  --label "agent-created,source/human-ops,team-culture,assigned/po" \
   --body "## Team Win
 
 **What happened**: DESCRIPTION_OF_THE_ACHIEVEMENT
@@ -119,7 +119,7 @@ Suggest an activity, experiment, or tradition that makes the fishbowl more engag
 ```bash
 gh issue create \
   --title "VP Human Ops: Suggestion — IDEA_TITLE" \
-  --label "agent-created,source/human-ops,team-culture,suggestion" \
+  --label "agent-created,source/human-ops,team-culture,suggestion,assigned/po" \
   --body "## Suggestion
 
 **Idea**: WHAT_YOU'RE_PROPOSING
@@ -141,7 +141,7 @@ Create a curated digest of the week's most interesting agent interactions for th
 ```bash
 gh issue create \
   --title "VP Human Ops: Weekly Digest — DATE_RANGE" \
-  --label "agent-created,source/human-ops,team-culture" \
+  --label "agent-created,source/human-ops,team-culture,assigned/po" \
   --body "## This Week in the Fishbowl
 
 A curated look at what the AI agent team did this week — the interesting moments, the debates, and the progress.

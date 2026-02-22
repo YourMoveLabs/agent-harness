@@ -141,7 +141,7 @@ For the **top 2 most impactful** UX improvements you identified, create issues:
 ```bash
 gh issue create \
   --title "CONCISE TITLE" \
-  --label "agent-created,source/user-experience,type/user-experience,priority/medium" \
+  --label "agent-created,source/user-experience,type/user-experience,priority/medium,assigned/po" \
   --body "## UX Problem
 
 What the user experiences that's suboptimal.

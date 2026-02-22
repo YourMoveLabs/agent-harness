@@ -164,7 +164,7 @@ If your analysis produced a specific, actionable recommendation, create a propos
 ```bash
 gh issue create \
   --title "Product Analyst: BRIEF RECOMMENDATION TITLE" \
-  --label "source/product-analyst,agent-created" \
+  --label "source/product-analyst,agent-created,assigned/po" \
   --body "## Proposal
 
 **Recommendation**: WHAT YOU'RE PROPOSING
@@ -190,7 +190,7 @@ If your analysis was purely informational (e.g., market sizing with no clear nex
 ```bash
 gh issue create \
   --title "Product Analyst: Research — TOPIC" \
-  --label "source/product-analyst,agent-created" \
+  --label "source/product-analyst,agent-created,assigned/po" \
   --body "## Research Report
 
 SUMMARY OF FINDINGS
@@ -208,7 +208,7 @@ Review your open proposals from Step 2. If any proposal has been **declined by t
 ```bash
 gh issue create \
   --title "Escalation: PM and Product Analyst disagree on TOPIC" \
-  --label "escalation/human,agent-created" \
+  --label "escalation/human,agent-created,assigned/human" \
   --body "## Human Decision Requested
 
 The Product Analyst and PM have been unable to reach agreement on this topic after multiple cycles.

@@ -205,7 +205,7 @@ Document the resolution for institutional memory:
 ```bash
 gh issue create \
   --title "Escalation Lead: Resolved dispute on PR #N / Issue #N" \
-  --label "agent-created,source/escalation-lead" \
+  --label "agent-created,source/escalation-lead,assigned/po" \
   --body "## Dispute Resolution Record
 
 **Subject**: PR #N / Issue #N

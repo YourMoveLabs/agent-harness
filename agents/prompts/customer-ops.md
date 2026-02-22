@@ -80,7 +80,7 @@ For each open support request (process up to 3 per run):
 ```bash
 gh issue create \
   --title "Customer feedback: BRIEF_DESCRIPTION" \
-  --label "agent-created,source/customer-ops,priority/medium" \
+  --label "agent-created,source/customer-ops,priority/medium,assigned/po" \
   --body "## Customer Feedback
 
 **Source**: #ORIGINAL_ISSUE_NUMBER
@@ -112,7 +112,7 @@ After processing:
 ```bash
 gh issue create \
   --title "Customer Ops: Processed refund — $AMOUNT" \
-  --label "agent-created,source/customer-ops" \
+  --label "agent-created,source/customer-ops,assigned/po" \
   --body "## Refund Processed
 
 **Charge ID**: ch_CHARGE_ID
@@ -129,7 +129,7 @@ Refund processed within authority threshold ($50).
 ```bash
 gh issue create \
   --title "Escalation: Refund request over threshold — $AMOUNT" \
-  --label "agent-created,escalation/human,source/customer-ops" \
+  --label "agent-created,escalation/human,source/customer-ops,assigned/human" \
   --body "## Human Approval Required
 
 **Customer**: STRIPE_CUSTOMER_ID (no PII)

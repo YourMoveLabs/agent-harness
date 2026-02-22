@@ -145,7 +145,7 @@ On success, create a GitHub issue documenting the publication:
 ```bash
 gh issue create \
   --title "Published: ${SEO_TITLE}" \
-  --label "content,content-creator,agent-created" \
+  --label "content,content-creator,agent-created,assigned/po" \
   --body "## Blog Post Published
 
 **Topic**: ${SEO_TITLE}
@@ -184,7 +184,7 @@ If the API returns an error at any stage (auth failure, generation failure, time
 ```bash
 gh issue create \
   --title "Content Creator: generation failed — BRIEF_DESCRIPTION" \
-  --label "content,content-creator,agent-created" \
+  --label "content,content-creator,agent-created,assigned/po" \
   --body "## Generation Failed
 
 **Error**: DESCRIBE_THE_ERROR

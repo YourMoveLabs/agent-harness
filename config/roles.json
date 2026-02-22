@@ -33,7 +33,7 @@
       },
       "tools": "Bash(gh:*),Bash(git:*),Bash(ruff:*),Bash(npx:*),Bash(pip:*),Bash(scripts/*),Bash(cat:*),Bash(chmod:*),Read,Write,Edit,Glob,Grep",
       "default_job": "default",
-      "partials": ["reflection"]
+      "partials": ["assignment", "reflection"]
     },
     "ops-engineer": {
       "model": "sonnet",
@@ -41,7 +41,7 @@
       "max_budget": 1.00,
       "default_job": "operations",
       "tools": "Bash(az:*),Bash(curl:*),Bash(python3:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read,Glob,Grep",
-      "partials": ["reflection", "knowledge-base"]
+      "partials": ["assignment", "reflection", "knowledge-base"]
     },
     "reviewer": {
       "model": "opus",
@@ -53,20 +53,20 @@
       },
       "tools": "${COMMON},Bash(scripts/*)",
       "default_job": "deep-review",
-      "partials": ["reflection", "knowledge-base"]
+      "partials": ["assignment", "reflection", "knowledge-base"]
     },
     "product-owner": {
       "model": "sonnet",
       "thinking_budget": 10000,
       "max_budget": 3.00,
       "tools": "${COMMON},Bash(scripts/*)",
-      "partials": ["reflection", "knowledge-base"]
+      "partials": ["assignment", "reflection", "knowledge-base"]
     },
     "product-manager": {
       "model": "opus",
       "max_budget": 3.00,
       "tools": "Bash(gh:*),Bash(cat:*),Bash(scripts/*),Read",
-      "partials": ["reflection", "knowledge-base"]
+      "partials": ["assignment", "reflection", "knowledge-base"]
     },
     "tech-lead": {
       "model": "opus",
@@ -88,42 +88,42 @@
         "project-structure-review": 10000
       },
       "tools": "${COMMON},Bash(scripts/*)",
-      "partials": ["reflection", "knowledge-base"]
+      "partials": ["assignment", "reflection", "knowledge-base"]
     },
     "site-reliability": {
       "model": "sonnet",
       "thinking_budget": 0,
       "max_budget": 1.00,
       "tools": "Bash(curl:*),Bash(az:*),Bash(gh:*),Bash(python3:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Read",
-      "partials": []
+      "partials": ["assignment"]
     },
     "content-creator": {
       "model": "opus",
       "thinking_budget": 0,
       "max_budget": 3.00,
       "tools": "${API},Bash(sleep:*),Bash(echo:*)",
-      "partials": ["sandbox", "knowledge-base"]
+      "partials": ["assignment", "sandbox", "knowledge-base"]
     },
     "product-analyst": {
       "model": "opus",
       "max_budget": 3.00,
       "default_job": "product-discovery",
       "tools": "${API},WebSearch",
-      "partials": ["sandbox", "reflection", "knowledge-base"]
+      "partials": ["assignment", "sandbox", "reflection", "knowledge-base"]
     },
     "financial-analyst": {
       "model": "sonnet",
       "thinking_budget": 0,
       "max_budget": 1.50,
       "tools": "${API}",
-      "partials": ["sandbox", "reflection", "knowledge-base"]
+      "partials": ["assignment", "sandbox", "reflection", "knowledge-base"]
     },
     "marketing-strategist": {
       "model": "sonnet",
       "thinking_budget": 10000,
       "max_budget": 2.00,
       "tools": "${API}",
-      "partials": ["sandbox", "reflection", "knowledge-base"]
+      "partials": ["assignment", "sandbox", "reflection", "knowledge-base"]
     },
     "qa-analyst": {
       "model": "sonnet",
@@ -137,28 +137,28 @@
       },
       "tools": "Bash(curl:*),Bash(gh:*),Bash(jq:*),Bash(cat:*),Bash(date:*),Bash(scripts/*),Bash(echo:*),Read,Glob,Grep",
       "default_job": "default",
-      "partials": ["sandbox"]
+      "partials": ["assignment", "sandbox"]
     },
     "customer-ops": {
       "model": "sonnet",
       "thinking_budget": 0,
       "max_budget": 1.00,
       "tools": "${API}",
-      "partials": ["sandbox"]
+      "partials": ["assignment", "sandbox"]
     },
     "human-ops": {
       "model": "sonnet",
       "thinking_budget": 0,
       "max_budget": 1.00,
       "tools": "${API}",
-      "partials": ["sandbox"]
+      "partials": ["assignment", "sandbox"]
     },
     "escalation-lead": {
       "model": "sonnet",
       "thinking_budget": 10000,
       "max_budget": 2.00,
       "tools": "${COMMON},Bash(scripts/*)",
-      "partials": ["sandbox"]
+      "partials": ["assignment", "sandbox"]
     },
     "triage": {
       "provider": "codex",
@@ -166,14 +166,14 @@
       "thinking_budget": 0,
       "max_budget": 1.00,
       "tools": "${COMMON},Bash(scripts/*)",
-      "partials": []
+      "partials": ["assignment"]
     },
     "user-experience": {
       "model": "sonnet",
       "thinking_budget": 10000,
       "max_budget": 2.00,
       "tools": "${COMMON},Bash(scripts/*)",
-      "partials": []
+      "partials": ["assignment"]
     }
   }
 }

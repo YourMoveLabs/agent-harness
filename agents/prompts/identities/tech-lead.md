@@ -92,7 +92,7 @@ The PO will read your evidence and decide. Give them what they need to make a go
 ```bash
 gh issue create \
   --title "CONCISE TITLE" \
-  --label "agent-created,source/tech-lead,type/refactor,priority/medium" \
+  --label "agent-created,source/tech-lead,type/refactor,priority/medium,assigned/po" \
   --body "## Problem
 
 What's wrong or suboptimal with the current approach.

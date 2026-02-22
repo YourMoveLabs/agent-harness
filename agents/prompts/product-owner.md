@@ -179,9 +179,9 @@ gh issue view N
    - **De-prioritize**: Add `priority/low` label and comment explaining why it's not urgent.
    - **Close as won't-fix**: Close with a comment explaining why (e.g., out of scope, already addressed, too low value).
 
-3. **Apply labels** — every prioritized issue MUST have a `role/*` label to route it to the right agent:
+3. **Apply labels** — every prioritized issue MUST have both a `role/*` label (categorization) and an `assigned/*` label (whose turn it is):
 ```bash
-gh issue edit N --add-label "priority/medium,type/refactor,role/engineer"
+gh issue edit N --add-label "priority/medium,type/refactor,role/engineer,assigned/engineer"
 gh issue comment N --body "Triaged: [brief explanation of priority decision]"
 ```
 
@@ -265,7 +265,7 @@ Each issue should be small enough for one engineer to complete in a single sessi
 ```bash
 gh issue create \
   --title "CONCISE TITLE" \
-  --label "agent-created,source/roadmap,priority/high,type/feature,role/engineer" \
+  --label "agent-created,source/roadmap,priority/high,type/feature,role/engineer,assigned/engineer" \
   --body "## Description
 
 Brief description of what needs to be built and why.
@@ -313,9 +313,13 @@ gh project item-archive PROJECT_NUMBER --owner OWNER --id DRAFT_ITEM_ID
 - Always include `agent-created` and `source/roadmap`
 - Priority: `priority/high` for P1 roadmap items, `priority/medium` for P2
 - Type: `type/feature` for new functionality, `type/bug` for fixes, `type/chore` for maintenance
-- Role (REQUIRED — every issue must be routed to an agent):
+- Role (categorization — what type of agent handles it):
   - `role/engineer` — Code changes: features, bugs, refactors, tests, Dockerfiles, CI/CD config, frontend, backend
   - `role/ops` — Azure resource operations: scaling, env vars, ACR cleanup, Container App config, Function App settings, networking
+- Assignment (REQUIRED — triggers the downstream agent, tells them it's their turn):
+  - `assigned/engineer` — Engineer should implement this next
+  - `assigned/ops` — Ops engineer should handle this next
+  - `assigned/human` — Human action required (use for `harness/request` or unclear blocks)
 
 ## Step 7: Report
 

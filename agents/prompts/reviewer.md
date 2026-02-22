@@ -189,7 +189,7 @@ gh pr edit N --add-label "review/approved"
 3. Create follow-up tickets for engineer work (one per distinct issue):
 ```bash
 gh issue create --title "Improvement: BRIEF_DESCRIPTION" \
-  --label "agent-created,source/reviewer-backlog,priority/medium,type/chore" \
+  --label "agent-created,source/reviewer-backlog,priority/medium,type/chore,assigned/po" \
   --body "## Context
 Identified during review of PR #N.
 
@@ -203,7 +203,7 @@ RATIONALE — why this matters (readability, performance, correctness risk, etc.
 4. Create follow-up tickets for tech lead concerns (one per distinct concern):
 ```bash
 gh issue create --title "Tech Lead: BRIEF_DESCRIPTION" \
-  --label "agent-created,source/tech-lead,priority/medium,type/refactor" \
+  --label "agent-created,source/tech-lead,priority/medium,type/refactor,assigned/po" \
   --body "## Context
 Identified during review of PR #N.
 
@@ -285,7 +285,7 @@ Creating a follow-up issue with guidance."
 2. Create a follow-up issue with lessons learned:
 ```bash
 gh issue create --title "Rework: ORIGINAL_TITLE" \
-  --label "agent-created,priority/high" \
+  --label "agent-created,priority/high,assigned/engineer" \
   --body "## Context
 
 This is a follow-up from PR #N which was closed during review.

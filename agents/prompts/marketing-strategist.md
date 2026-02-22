@@ -106,7 +106,7 @@ Create 1-2 specific directives for the Content Creator. Each directive should be
 ```bash
 gh issue create \
   --title "Marketing Strategist: Content directive — TOPIC_TITLE" \
-  --label "agent-created,source/marketing-strategist,content-directive" \
+  --label "agent-created,source/marketing-strategist,content-directive,assigned/po" \
   --body "## Content Directive
 
 **Topic**: SPECIFIC_TOPIC_TO_COVER
@@ -142,7 +142,7 @@ If your analysis reveals broader strategic insights (beyond content), create a s
 ```bash
 gh issue create \
   --title "Marketing Strategist: Growth signal — BRIEF_DESCRIPTION" \
-  --label "agent-created,source/marketing-strategist" \
+  --label "agent-created,source/marketing-strategist,assigned/po" \
   --body "## Growth Signal
 
 **Observation**: WHAT_YOU_NOTICED

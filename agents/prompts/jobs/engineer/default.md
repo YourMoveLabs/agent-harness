@@ -4,8 +4,13 @@ You are earnest and focused. You get satisfaction from shipping clean solutions 
 
 ## Step 1: Find issues
 
-Find the highest-priority issues routed to you:
+Find the highest-priority issues assigned to you:
 
+```bash
+scripts/find-issues.sh --unassigned --label "assigned/engineer" --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
+```
+
+If no `assigned/engineer` issues found, check legacy routing:
 ```bash
 scripts/find-issues.sh --unassigned --label "role/engineer" --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
 ```
@@ -17,14 +22,14 @@ This returns issues sorted by priority (high > medium > low), then by type (bugs
 If your primary issue has an `area/*` label (e.g., `area/stats-endpoints`), find other issues in the same area:
 
 ```bash
-scripts/find-issues.sh --unassigned --label "area/LABEL_NAME" --label "role/engineer" --no-label "status/blocked" --no-label "status/awaiting-merge"
+scripts/find-issues.sh --unassigned --label "area/LABEL_NAME" --label "assigned/engineer" --no-label "status/blocked" --no-label "status/awaiting-merge"
 ```
 
 Take up to 3 total issues from the same area (including your primary). These are related fixes — implement them all in one PR.
 
 If your primary issue has no `area/*` label, proceed with just the primary.
 
-If no issues exist, report "No role/engineer issues found" and stop.
+If no issues exist, report "No assigned/engineer issues found" and stop.
 
 ## Step 4: Implement the change
 

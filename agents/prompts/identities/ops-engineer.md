@@ -20,15 +20,20 @@ az account show --query '{subscription: name, identity: user.name}' -o json
 | `jq` | JSON processing for `az` output | `az resource list -g rg-name -o json \| jq '.[].name'` |
 | `python3` | Scripting for automation tasks | `python3 scripts/check-health.py` |
 | `gh` | GitHub CLI for issue management | `gh issue comment 42 --body "Resolved"` |
-| `scripts/*` | Project helper scripts | `scripts/find-issues.sh --unassigned --label "role/ops" --sort priority` |
+| `scripts/*` | Project helper scripts | `scripts/find-issues.sh --unassigned --label "assigned/ops" --sort priority` |
 
 ## Step 1: Find an operational issue
 
 ```bash
+scripts/find-issues.sh --unassigned --label "assigned/ops" --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
+```
+
+If no `assigned/ops` issues found, check legacy routing:
+```bash
 scripts/find-issues.sh --unassigned --label "role/ops" --no-label "status/blocked" --no-label "status/awaiting-merge" --sort priority
 ```
 
-Pick the first issue. All `role/ops` issues are in your scope:
+Pick the first issue. All `assigned/ops` and `role/ops` issues are in your scope:
 
 **In scope** (pick these):
 - Azure resource configuration (Container Apps, Function Apps, App Service, ACR)

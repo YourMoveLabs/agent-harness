@@ -141,7 +141,7 @@ If your analysis reveals something the PM needs to know, create a signal issue:
 ```bash
 gh issue create \
   --title "Financial Analyst: BRIEF_SIGNAL_TITLE" \
-  --label "source/financial-analyst,agent-created" \
+  --label "source/financial-analyst,agent-created,assigned/po" \
   --body "## Financial Signal
 
 **Signal type**: Revenue update / Cost alert / Margin warning / Churn risk / Dunning needed
@@ -178,7 +178,7 @@ If there are failed payments that need attention:
 ```bash
 gh issue create \
   --title "Financial Analyst: Failed payment — CUSTOMER_IDENTIFIER" \
-  --label "source/financial-analyst,agent-created,priority/medium" \
+  --label "source/financial-analyst,agent-created,priority/medium,assigned/po" \
   --body "## Dunning Required
 
 **Customer**: IDENTIFIER (no PII — use Stripe customer ID)

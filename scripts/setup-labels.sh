@@ -11,13 +11,9 @@ ensure_label() {
     local color="$2"
     local description="$3"
 
-    if gh label list --json name --jq '.[].name' | grep -qx "$name"; then
-        gh label edit "$name" --color "$color" --description "$description"
-        echo "  Updated: $name"
-    else
-        gh label create "$name" --color "$color" --description "$description"
-        echo "  Created: $name"
-    fi
+    gh label create "$name" --color "$color" --description "$description" --force 2>/dev/null \
+        && echo "  Set: $name" \
+        || echo "  FAILED: $name"
 }
 
 # Role routing labels (which agent handles it)
@@ -58,6 +54,13 @@ ensure_label "product-manager/misaligned"    "d876e3" "Product Manager flagged: 
 
 # Harness labels
 ensure_label "harness/request"  "ff9800" "Agent needs a harness capability (tool, permission, config)"
+
+# Assignment routing labels (whose turn is it)
+ensure_label "assigned/triage"   "1f77b4" "Triage agent should classify"
+ensure_label "assigned/po"       "ff7f0e" "PO should prioritize and scope"
+ensure_label "assigned/engineer" "2ca02c" "Engineer should implement"
+ensure_label "assigned/ops"      "9467bd" "Ops engineer should handle"
+ensure_label "assigned/human"    "d62728" "Human action required"
 
 # Meta labels
 ensure_label "agent-created"    "bfdadc" "Created by an agent (not human)"

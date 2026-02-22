@@ -66,9 +66,9 @@ cat path/to/relevant/component
 cat path/to/relevant/route
 ```
 
-2. Add the `source/triage` label to mark it as validated:
+2. Add the `source/triage` and `assigned/po` labels to mark it as validated and route to the PO:
 ```bash
-gh issue edit N --add-label "source/triage"
+gh issue edit N --add-label "source/triage,assigned/po"
 ```
 
 3. If the issue type is obvious, add a type label too:

@@ -66,7 +66,7 @@ For each gap (maximum 2 per run), create a tooling issue for the engineer:
 ```bash
 gh issue create \
   --title "Tooling: scripts/qa-TOOL_NAME.sh — WHAT_IT_DOES" \
-  --label "agent-created,source/tech-lead,type/tooling,priority/medium" \
+  --label "agent-created,source/tech-lead,type/tooling,priority/medium,assigned/po" \
   --body "## QA Tooling Gap
 
 **What QA currently does manually**: DESCRIBE_THE_MANUAL_WORK

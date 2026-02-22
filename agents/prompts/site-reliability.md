@@ -79,7 +79,7 @@ If re-triggering, file an issue:
 ```bash
 gh issue create \
   --title "Site Reliability: Re-triggered ingestion — articles stale" \
-  --label "source/site-reliability,priority/medium,type/chore" \
+  --label "source/site-reliability,priority/medium,type/chore,assigned/po" \
   --label "agent-created" \
   --body "## Site Reliability Health Check Finding
 
@@ -97,7 +97,7 @@ The ingest workflow is broken. The engineer needs to fix it.
 ```bash
 gh issue create \
   --title "Site Reliability: Ingestion workflow failing — articles stale" \
-  --label "source/site-reliability,priority/high,type/bug" \
+  --label "source/site-reliability,priority/high,type/bug,assigned/po" \
   --label "agent-created" \
   --body "## Site Reliability Health Check Finding
 
@@ -117,7 +117,7 @@ The API is returning errors or is unreachable.
 ```bash
 gh issue create \
   --title "Site Reliability: API health check failing" \
-  --label "source/site-reliability,priority/high,type/bug" \
+  --label "source/site-reliability,priority/high,type/bug,assigned/po" \
   --label "agent-created" \
   --body "## Site Reliability Health Check Finding
 
@@ -137,7 +137,7 @@ A recent deploy failed. The API might be running an old version.
 ```bash
 gh issue create \
   --title "Site Reliability: Deploy workflow failed" \
-  --label "source/site-reliability,priority/high,type/bug" \
+  --label "source/site-reliability,priority/high,type/bug,assigned/po" \
   --label "agent-created" \
   --body "## Site Reliability Health Check Finding
 

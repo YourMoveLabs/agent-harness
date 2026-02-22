@@ -126,7 +126,7 @@ For each verified discrepancy (maximum 2 per run), create an issue. The title sh
 ```bash
 gh issue create \
   --title "QA: DATA_ACCURACY_PROBLEM_TITLE" \
-  --label "agent-created,source/qa-analyst,type/bug,priority/medium" \
+  --label "agent-created,source/qa-analyst,type/bug,priority/medium,assigned/po" \
   --body "**Expected**: WHAT_SHOULD_BE_TRUE
 **Actual**: WHAT_YOU_OBSERVED
 
